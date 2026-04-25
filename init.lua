@@ -1,3 +1,7 @@
+-- Set leader keys before lazy.nvim so all plugin keymaps bind correctly
+vim.g.mapleader      = "\\"  -- <leader>  = backslash (default)
+vim.g.maplocalleader = "\\"  -- <localleader> = backslash
+
 -- This file can be loaded by calling `lua require('plugins')` from your init.vim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
