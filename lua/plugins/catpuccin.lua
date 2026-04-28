@@ -2,8 +2,8 @@ return {
     'catppuccin/nvim',
     lazy = false,
     priority = 1000,
-	-- The 'config' function runs after the plugin is successfully loaded
-	config = function()
+  -- The 'config' function runs after the plugin is successfully loaded
+  config = function()
         require("catppuccin").setup({
             flavour = "mocha", -- latte, frappe, macchiato, mocha
             background = { -- :h background
@@ -79,5 +79,5 @@ return {
             },
         })
         vim.cmd.colorscheme "catppuccin"
-	end,
+  end,
 }
