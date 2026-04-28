@@ -46,7 +46,7 @@ A full-featured, opinionated Neovim 0.12+ configuration built for C/C++, Swift, 
 mv ~/.config/nvim ~/.config/nvim.bak
 
 # Clone the repo
-git clone git@github.com:sumowrestler99/nvim-config.git ~/.config/nvim
+git clone https://github.com/sumowrestler99/nvim-config.git ~/.config/nvim
 
 # Start Neovim — lazy.nvim will auto-install itself and all plugins
 nvim
