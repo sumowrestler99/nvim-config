@@ -61,4 +61,13 @@ return function() -- This function is called by init.lua
             end
         end,
     })
+
+    -- Add dummy winbar to fugitive blame to align with file window
+    vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("FugitiveBlameWinbar", { clear = true }),
+        pattern = "fugitiveblame",
+        callback = function()
+            vim.wo.winbar = " "
+        end,
+    })
 end

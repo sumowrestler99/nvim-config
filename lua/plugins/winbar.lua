@@ -33,6 +33,8 @@ return {
             "alpha",
             "toggleterm",
             "qf",
+            "fugitive",
+            "fugitiveblame",
         },
     },
 }
