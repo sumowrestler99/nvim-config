@@ -27,7 +27,7 @@ A full-featured, opinionated Neovim 0.12+ configuration built for C/C++, Swift, 
 ## Assumptions
 
 - You are running **macOS** (some paths and tools assume Homebrew, e.g. `/opt/homebrew/bin/nvim`)
-- Your terminal uses a **Nerd Font** — all icons (gitsigns, lualine, cmp, noice, nvim-tree) depend on it
+- Your terminal uses a **Nerd Font** — all icons (gitsigns, lualine, cmp, noice, nvim-tree) depend on it ([Iosevka Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Iosevka) recommended)
 - **Swift/Objective-C** development uses Xcode's `sourcekit-lsp` via `xcrun`; Xcode must be installed
 - `GEMINI_API_KEY` is set in your shell environment for Avante AI features
 - Tab width is **4 spaces** by default; toggle to 2 with `<F4>`
@@ -70,7 +70,7 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 ## Requirements
 
 - Neovim 0.12+
-- A [Nerd Font](https://www.nerdfonts.com/) (icons throughout UI)
+- A [Nerd Font](https://www.nerdfonts.com/) (icons throughout UI) — [Iosevka Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Iosevka) recommended
 - `git`, `curl`, `make`, `clang` or `gcc`
 - `GEMINI_API_KEY` environment variable (for Avante AI assistant)
 
