@@ -10,7 +10,7 @@ return {
     lazy = false,
     opts = {
         -- Auto-attach nvim-navic to LSP clients for breadcrumb symbols
-        attach_navic = true,
+        attach_navic = false,
 
         -- Use catppuccin highlights automatically
         theme = "auto",

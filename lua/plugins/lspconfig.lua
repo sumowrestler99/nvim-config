@@ -20,8 +20,18 @@ return {
                 local bufnr = ev.buf
                 local bufopts = { noremap = true, silent = true, buffer = bufnr }
 
+                if client.server_capabilities.documentSymbolProvider then
+                    local navic = require('nvim-navic')
+                    if not navic.is_available(bufnr) then
+                        navic.attach(client, bufnr)
+                    end
+                end
+
                 if vim.lsp.inlay_hint and client.server_capabilities.inlayHintProvider then
-                    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+                    local uri = vim.uri_from_bufnr(bufnr)
+                    if string.match(uri, "^file:") then
+                        vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+                    end
                 end
 
                 vim.keymap.set('n', 'gD',         vim.lsp.buf.declaration,    bufopts)
@@ -57,7 +67,7 @@ return {
             "--completion-style=bundled", -- group overloads → fewer items, faster
             "--header-insertion=never",   -- skip auto-include analysis per completion
             "--pch-storage=memory",       -- keep precompiled headers in RAM vs disk
-            "--j=4",                      -- indexing threads (tune to core count)
+            "--j=" .. #vim.uv.cpu_info(),  -- indexing threads (dynamic core count)
             "--log=error",                -- suppress info/warning log noise
         }
 
