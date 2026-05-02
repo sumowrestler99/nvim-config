@@ -46,6 +46,8 @@ return {
                 gitsigns = true,
                 nvimtree = false,
                 neotree = true,
+                dap = true,
+                dap_ui = true,
                 overseer = false,
                 telescope = true,
                 notify = true,

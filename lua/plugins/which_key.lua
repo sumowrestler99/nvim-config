@@ -72,6 +72,13 @@ return {
       { "<leader>du", desc = "Toggle DAP UI" },
       { "<leader>dx", desc = "Terminate" },
       { "<leader>dK", desc = "Hover value" },
+      { "<leader>dC", desc = "Run to cursor" },
+      -- Fn keys (active only during a DAP session)
+      { "<F5>",  desc = "DAP Continue (session)" },
+      { "<F9>",  desc = "DAP Toggle breakpoint (session)" },
+      { "<F10>", desc = "DAP Step over (session)" },
+      { "<F11>", desc = "DAP Step into (session)" },
+      { "<F12>", desc = "DAP Step out (session)" },
       -- <space> LSP keys
       { "<space>e",  desc = "Diagnostic float" },
       { "<space>q",  desc = "Diagnostic loclist" },

@@ -14,7 +14,7 @@ A full-featured, opinionated Neovim 0.12+ configuration built for C/C++, Swift, 
 - **Code folding** — nvim-ufo with virtual text showing folded line count, custom status column
 - **Persistent undo** — full undo history survives session restarts
 - **OSC52 clipboard** — yank to local clipboard transparently over SSH, no clipboard tool required on the remote
-- **Debugging** — nvim-gdb integration for GDB/LLDB with keymaps mapped inside the debugger window
+- **Debugging** — nvim-dap with codelldb (LLDB), cpptools (gdbserver), and debugpy (Python); DAP UI auto-opens on session start
 - **Snippet support** — LuaSnip with VSCode-compatible friendly-snippets
 - **Image paste** — paste images from clipboard into buffers via img-clip (`<leader>pi`)
 - **Annotation generation** — Neogen generates docstrings/doxygen comments (`<leader>nf`)
@@ -87,7 +87,7 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 │   │   ├── options.lua       # Editor options, LSP diagnostics config
 │   │   ├── keymaps.lua       # Global keymaps
 │   │   ├── autocmds.lua      # Autocommands (yank, cursor restore, resize)
-│   │   └── globals.lua       # Global variables (nvim-gdb config)
+│   │   └── globals.lua       # Global variables
 │   └── plugins/              # One file per plugin, loaded via lazy.nvim
 └── .gitignore
 ```
@@ -295,17 +295,36 @@ Inside the tree: `l`/`h` open/close nodes, `v` open in vsplit, `s` open in split
 | `<leader>mi` | Open Mason UI |
 | `<leader>mu` | Update Mason registries |
 
-### Debug (nvim-gdb)
+### Debug (nvim-dap)
 
 | Key | Action |
 |-----|--------|
-| `<leader>dd` | Launch nvim-gdb |
-| `n` | Next (in gdb window) |
-| `s` | Step (in gdb window) |
-| `f` | Finish (in gdb window) |
-| `c` | Continue (in gdb window) |
-| `u` | Until (in gdb window) |
-| `b` | Breakpoint (in gdb window) |
+| `<leader>db` | Toggle breakpoint |
+| `<leader>dB` | Conditional breakpoint |
+| `<leader>dc` | Continue |
+| `<leader>dC` | Run to cursor |
+| `<leader>dn` | Step over |
+| `<leader>ds` | Step into |
+| `<leader>df` | Step out |
+| `<leader>dr` | Open REPL |
+| `<leader>dl` | Run last config |
+| `<leader>du` | Toggle DAP UI |
+| `<leader>dx` | Terminate session |
+| `<leader>dK` | Hover variable value |
+
+Function keys are active **only during an active debug session** and are unset automatically when the session ends:
+
+| Key | Action |
+|-----|--------|
+| `F5` | Continue |
+| `F9` | Toggle breakpoint |
+| `F10` | Step over |
+| `F11` | Step into |
+| `F12` | Step out |
+
+Adapters installed via Mason: **codelldb** (C/C++ via LLDB), **cpptools** (C/C++ gdbserver attach, GDB 7+), **debugpy** (Python).
+
+Per-project launch configs are read automatically from `.vscode/launch.json`.
 
 ### Documentation (Neogen)
 
@@ -411,7 +430,9 @@ Inside the tree: `l`/`h` open/close nodes, `v` open in vsplit, `s` open in split
 | Plugin | Purpose |
 |--------|---------|
 | [toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim) | Floating terminal (`<C-\>`) |
-| [nvim-gdb](https://github.com/sakhnik/nvim-gdb) | GDB/LLDB debugger integration |
+| [nvim-dap](https://github.com/mfussenegger/nvim-dap) | Debug Adapter Protocol core |
+| [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui) | DAP UI panels (scopes, breakpoints, stacks, console) |
+| [nvim-dap-virtual-text](https://github.com/theHamsta/nvim-dap-virtual-text) | Inline variable values during debug sessions |
 
 ### Markdown / Docs
 
