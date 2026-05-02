@@ -489,16 +489,18 @@ Provider: **Gemini 2.5 Flash** via `GEMINI_API_KEY` environment variable.
 
 ## Noice Cmdline Icons
 
-| Mode | Icon | Trigger |
-|------|------|---------|
-| Command | 󰘳 | `:` |
-| Search down | | `/` |
-| Search up | | `?` |
-| Shell | | `:!` |
-| Lua | | `:lua` |
-| Help | 󰋖 | `:help` |
-| Calculator | | `=` |
-| Input | 󰥻 | `input()` prompts |
+> Icons require a Nerd Font in your terminal to render correctly.
+
+| Mode | Nerd Font Codepoint | Trigger |
+|------|---------------------|---------|
+| Command | `nf-md-apple_keyboard_command` (U+F0E33) | `:` |
+| Search down | `nf-fa-search` (U+F002) | `/` |
+| Search up | `nf-fa-search` (U+F002) | `?` |
+| Shell | `nf-fa-dollar` (U+F155) | `:!` |
+| Lua | `nf-seti-lua` (U+E620) | `:lua` |
+| Help | `nf-md-help_circle` (U+F059) | `:help` |
+| Calculator | `nf-fa-calculator` (U+F1EC) | `=` |
+| Input | `nf-md-form_textbox` (U+F193) | `input()` prompts |
 
 ---
 
