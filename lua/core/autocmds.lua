@@ -46,18 +46,12 @@ return function() -- This function is called by init.lua
     })
 
     vim.api.nvim_create_autocmd("VimEnter", {
-        group = vim.api.nvim_create_augroup("NvimTreeAutoOpen", { clear = true }),
+        group = vim.api.nvim_create_augroup("NeoTreeAutoOpen", { clear = true }),
         callback = function()
             local initial_buf_name = vim.api.nvim_buf_get_name(0)
-            local initial_file_path = vim.fn.expand("%:p") -- Get the full path of the initial item
-
-            -- Check if it's NOT a 'gdrive' path AND it IS a directory
+            local initial_file_path = vim.fn.expand("%:p")
             if not string.match(initial_buf_name, "gdrive") and vim.fn.isdirectory(initial_file_path) ~= 0 then
-                -- Call the NvimTreeToggle command.
-                -- Lazy.nvim will intercept this:
-                -- 1. If nvim-tree is not loaded, it will load it (running its 'config').
-                -- 2. Once loaded, the command will execute, opening the tree.
-                vim.cmd("NvimTreeToggle")
+                vim.cmd("Neotree toggle")
             end
         end,
     })

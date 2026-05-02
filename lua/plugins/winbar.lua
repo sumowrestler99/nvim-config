@@ -28,7 +28,7 @@ return {
             "help",
             "startify",
             "dashboard",
-            "NvimTree",
+            "neo-tree",
             "Trouble",
             "alpha",
             "toggleterm",

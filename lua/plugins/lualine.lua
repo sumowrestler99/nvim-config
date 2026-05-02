@@ -72,7 +72,7 @@ return {
         theme = "catppuccin-" .. require("catppuccin").flavour,
         component_separators = '',
         section_separators = { left = '', right = '' },
-        disabled_filetypes = { "NvimTree", "Packer", "Avante", "AvanteInput" }
+        disabled_filetypes = { "neo-tree", "Packer", "Avante", "AvanteInput" }
       },
       sections = process_sections {
         lualine_a = { 'mode' },
