@@ -4,6 +4,7 @@ return {
         "hrsh7th/cmp-nvim-lsp",
         "mason-org/mason.nvim",
         "mason-org/mason-lspconfig.nvim",
+        "b0o/schemastore.nvim",
     },
     ft = {
         "lua", "python", "typescript", "javascript",
@@ -86,9 +87,29 @@ return {
             })
             vim.lsp.enable('sourcekit')
 
+            -- jsonls: schema-aware JSON via SchemaStore
+            vim.lsp.config('jsonls', {
+                settings = {
+                    json = {
+                        schemas  = require('schemastore').json.schemas(),
+                        validate = { enable = true },
+                    },
+                },
+            })
+
+            -- yamlls: schema-aware YAML via SchemaStore
+            vim.lsp.config('yamlls', {
+                settings = {
+                    yaml = {
+                        schemaStore = { enable = false, url = "" },
+                        schemas     = require('schemastore').yaml.schemas(),
+                    },
+                },
+            })
+
             -- Mason: ensure servers are installed; auto-enables them via vim.lsp.enable()
             require("mason-lspconfig").setup({
-                ensure_installed = { "clangd", "lua_ls", "bashls", "marksman" },
+                ensure_installed = { "clangd", "lua_ls", "bashls", "marksman", "jsonls", "yamlls" },
             })
 
         else
@@ -105,7 +126,7 @@ return {
 
             -- Mason: ensure servers are installed
             require("mason-lspconfig").setup({
-                ensure_installed = { "clangd", "lua_ls", "bashls", "marksman" },
+                ensure_installed = { "clangd", "lua_ls", "bashls", "marksman", "jsonls", "yamlls" },
                 handlers = {
                     function(server_name)
                         lspconfig[server_name].setup({ capabilities = lsp_capabilities })
@@ -114,6 +135,28 @@ return {
                         lspconfig.clangd.setup({
                             capabilities = lsp_capabilities,
                             cmd          = clangd_cmd,
+                        })
+                    end,
+                    ["jsonls"] = function()
+                        lspconfig.jsonls.setup({
+                            capabilities = lsp_capabilities,
+                            settings = {
+                                json = {
+                                    schemas  = require('schemastore').json.schemas(),
+                                    validate = { enable = true },
+                                },
+                            },
+                        })
+                    end,
+                    ["yamlls"] = function()
+                        lspconfig.yamlls.setup({
+                            capabilities = lsp_capabilities,
+                            settings = {
+                                yaml = {
+                                    schemaStore = { enable = false, url = "" },
+                                    schemas     = require('schemastore').yaml.schemas(),
+                                },
+                            },
                         })
                     end,
                 },
