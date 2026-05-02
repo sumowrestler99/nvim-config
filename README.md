@@ -56,7 +56,7 @@ nvim
 On first launch:
 1. lazy.nvim bootstraps itself and downloads all plugins
 2. Treesitter parsers are compiled (`TSUpdate` runs automatically)
-3. Mason auto-installs LSP servers (`clangd`, `lua_ls`, `bashls`, `marksman`)
+3. Mason auto-installs LSP servers (`clangd`, `lua_ls`, `bashls`, `marksman`, `jsonls`, `yamlls`) and tools (`codelldb`, `cpptools`, `debugpy`, `checkmake`)
 4. Restart nvim once everything finishes installing
 
 **Set your Gemini API key** (required for Avante AI features):
@@ -379,7 +379,9 @@ Per-project launch configs are read automatically from `.vscode/launch.json`.
 |--------|---------|
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | LSP client configuration. Uses new `vim.lsp.config`/`vim.lsp.enable` API on 0.11+, legacy `require('lspconfig')` on 0.10. Inlay hints enabled where supported. |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | LSP/linter/formatter installer |
-| [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Bridges mason with lspconfig. Auto-installs: `clangd`, `lua_ls`, `bashls`, `marksman` |
+| [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Bridges mason with lspconfig. Auto-installs: `clangd`, `lua_ls`, `bashls`, `marksman`, `jsonls`, `yamlls` |
+| [schemastore.nvim](https://github.com/b0o/schemastore.nvim) | Provides SchemaStore catalog to jsonls and yamlls for automatic schema detection |
+| [nvim-lint](https://github.com/mfussenegger/nvim-lint) | Lightweight linter runner. Runs `checkmake` on Makefile buffers on read/write. |
 | [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) | Completion engine with LSP kind icons, bordered windows, 300ms debounce delay |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | Snippet engine with friendly-snippets |
 | [cmp-nvim-lsp](https://github.com/hrsh7th/cmp-nvim-lsp) | LSP completion source |
@@ -389,6 +391,8 @@ Per-project launch configs are read automatically from `.vscode/launch.json`.
 - `lua_ls` — Lua
 - `bashls` — Bash/sh
 - `marksman` — Markdown
+- `jsonls` — JSON (schema validation via SchemaStore; auto-detects schema from filename)
+- `yamlls` — YAML (schema validation via SchemaStore; auto-detects GitHub Actions, docker-compose, etc.)
 
 #### LSP Servers (manually configured)
 - `sourcekit` — Swift / Objective-C (via Xcode toolchain, `xcrun sourcekit-lsp`)
