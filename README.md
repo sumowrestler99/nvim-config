@@ -20,14 +20,15 @@ A full-featured, opinionated Neovim 0.12+ configuration built for C/C++, Swift, 
 - **Annotation generation** — Neogen generates docstrings/doxygen comments (`<leader>nf`)
 - **Todo tracking** — todo-comments.nvim highlights and navigates TODO/FIXME/NOTE/HACK/WARN across the codebase
 - **Terminal** — toggleterm floating terminal (`<C-\>`)
-- **Remote file editing** — netrw re-enabled for `scp://host/path` style remote files alongside nvim-tree
+- **Remote file editing** — netrw re-enabled for `scp://host/path` style remote files alongside neo-tree
+- **Animated cursor** — smear-cursor.nvim animates cursor movement with a smear trail
 
 ---
 
 ## Assumptions
 
 - You are running **macOS** (some paths and tools assume Homebrew, e.g. `/opt/homebrew/bin/nvim`)
-- Your terminal uses a **Nerd Font** — all icons (gitsigns, lualine, cmp, noice, nvim-tree) depend on it ([Iosevka Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Iosevka) recommended)
+- Your terminal uses a **Nerd Font** — all icons (gitsigns, lualine, cmp, noice, neo-tree) depend on it ([Iosevka Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Iosevka) recommended)
 - **Swift/Objective-C** development uses Xcode's `sourcekit-lsp` via `xcrun`; Xcode must be installed
 - `GEMINI_API_KEY` is set in your shell environment for Avante AI features
 - Tab width is **4 spaces** by default; toggle to 2 with `<F4>`
@@ -123,7 +124,7 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 | `BufReadPost` | Restore last cursor position in file |
 | `TextYankPost` | Flash highlight on yank + copy to clipboard via OSC52 |
 | `VimResized` | Auto-equalize split sizes on terminal resize |
-| `VimEnter` (directory arg) | Auto-open nvim-tree when nvim is opened on a directory |
+| `VimEnter` (directory arg) | Auto-open neo-tree when nvim is opened on a directory |
 | `ColorScheme` | Re-apply diagnostic underline highlights after theme changes |
 
 ### OSC52 Clipboard
@@ -174,12 +175,16 @@ Yanking (`y`) automatically copies to the local clipboard via OSC52. This works 
 | Normal | `<space>wl` | List workspace folders |
 | Visual | `\qf` | Format selected range |
 
-### File Explorer (nvim-tree)
+### File Explorer (neo-tree)
 
 | Key | Action |
 |-----|--------|
 | `<leader>e` | Toggle file tree |
 | `<leader>ef` | Reveal current file in tree |
+| `<leader>eg` | Git status (floating window) |
+| `<leader>eb` | Toggle buffer list |
+
+Inside the tree: `l`/`h` open/close nodes, `v` open in vsplit, `s` open in split, `P` toggle float preview.
 
 ### Git (gitsigns — buffer-local)
 
@@ -340,12 +345,13 @@ Yanking (`y`) automatically copies to the local clipboard via OSC52. This works 
 | [snacks.nvim](https://github.com/folke/snacks.nvim) | Indent guides with animation, smooth scrolling, fuzzy picker |
 | [which-key.nvim](https://github.com/folke/which-key.nvim) | Popup showing available keymaps after partial input |
 | [dressing.nvim](https://github.com/stevearc/dressing.nvim) | Replaces `vim.ui.input` and `vim.ui.select` with bordered floating windows |
+| [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | Animates cursor movement with a smear trail |
 
 ### File Management
 
 | Plugin | Purpose |
 |--------|---------|
-| [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua) | File explorer with git status, LSP diagnostics, modified indicators, indent markers |
+| [neo-tree.nvim](https://github.com/nvim-neo-tree/neo-tree.nvim) | File explorer with git status, LSP diagnostics, buffer list, floating git status panel, indent markers |
 | [img-clip.nvim](https://github.com/HakonHarnes/img-clip.nvim) | Paste images from clipboard into buffer (`<leader>pi`) |
 
 ### LSP & Completion
