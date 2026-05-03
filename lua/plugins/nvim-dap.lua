@@ -160,13 +160,13 @@ return {
             return vim.split(input, " ", { trimempty = true })
           end,
           cwd         = "${workspaceFolder}",
-          pathBash    = is_mac and "/opt/homebrew/bin/bash" or "/bin/bash",
-          pathBashdb  = is_mac and "/opt/homebrew/bin/bashdb" or "/usr/bin/bashdb",
-          pathCat     = "/bin/cat",
-          pathMkfifo  = "/usr/bin/mkfifo",
-          pathPkill   = is_mac and "/usr/bin/pkill" or "/usr/bin/pkill",
-          env         = {},
-          terminalKind = "integrated",
+          pathBash      = is_mac and "/opt/homebrew/bin/bash" or "/bin/bash",
+          pathBashdb    = is_mac and "/opt/homebrew/bin/bashdb"    or "/usr/bin/bashdb",
+          pathBashdbLib = is_mac and "/opt/homebrew/share/bashdb"  or "/usr/share/bashdb",
+          pathCat       = "/bin/cat",
+          pathMkfifo    = "/usr/bin/mkfifo",
+          pathPkill     = "/usr/bin/pkill",
+          env           = {},
         },
       }
       dap.configurations.bash = dap.configurations.sh
