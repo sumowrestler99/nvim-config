@@ -146,21 +146,27 @@ return {
         command = vim.fn.stdpath("data") .. "/mason/bin/bash-debug-adapter",
       }
 
+      local is_mac = vim.fn.has("mac") == 1
       dap.configurations.sh = {
         {
-          name       = "Launch Bash script",
-          type       = "bashdb",
-          request    = "launch",
-          program    = function()
+          name        = "Launch Bash script",
+          type        = "bashdb",
+          request     = "launch",
+          program     = function()
             return vim.fn.input("Script: ", vim.fn.getcwd() .. "/", "file")
           end,
-          args       = function()
+          args        = function()
             local input = vim.fn.input("Args (space-separated): ")
             return vim.split(input, " ", { trimempty = true })
           end,
-          cwd        = "${workspaceFolder}",
-          pathBashdb = vim.fn.has("mac") == 1 and "/opt/homebrew/bin/bashdb" or "/usr/bin/bashdb",
-          env        = {},
+          cwd         = "${workspaceFolder}",
+          pathBash    = is_mac and "/opt/homebrew/bin/bash" or "/bin/bash",
+          pathBashdb  = is_mac and "/opt/homebrew/bin/bashdb" or "/usr/bin/bashdb",
+          pathCat     = "/bin/cat",
+          pathMkfifo  = "/usr/bin/mkfifo",
+          pathPkill   = is_mac and "/usr/bin/pkill" or "/usr/bin/pkill",
+          env         = {},
+          terminalKind = "integrated",
         },
       }
       dap.configurations.bash = dap.configurations.sh
