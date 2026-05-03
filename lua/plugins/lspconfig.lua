@@ -111,7 +111,7 @@ return {
 
             -- Mason: ensure servers are installed; auto-enables them via vim.lsp.enable()
             require("mason-lspconfig").setup({
-                ensure_installed = { "clangd", "lua_ls", "bashls", "marksman", "jsonls", "yamlls" },
+                ensure_installed = { "clangd", "lua_ls", "bashls", "pyright", "marksman", "jsonls", "yamlls" },
             })
 
         else
@@ -130,7 +130,7 @@ return {
 
             -- Mason: ensure servers are installed
             require("mason-lspconfig").setup({
-                ensure_installed = { "clangd", "lua_ls", "bashls", "marksman", "jsonls", "yamlls" },
+                ensure_installed = { "clangd", "lua_ls", "bashls", "pyright", "marksman", "jsonls", "yamlls" },
                 handlers = {
                     function(server_name)
                         lspconfig[server_name].setup({ capabilities = lsp_capabilities })

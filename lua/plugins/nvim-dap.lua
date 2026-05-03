@@ -140,6 +140,31 @@ return {
         },
       }
 
+      -- Bash (bash-debug-adapter + bashdb)
+      dap.adapters.bashdb = {
+        type    = "executable",
+        command = vim.fn.stdpath("data") .. "/mason/bin/bash-debug-adapter",
+      }
+
+      dap.configurations.sh = {
+        {
+          name       = "Launch Bash script",
+          type       = "bashdb",
+          request    = "launch",
+          program    = function()
+            return vim.fn.input("Script: ", vim.fn.getcwd() .. "/", "file")
+          end,
+          args       = function()
+            local input = vim.fn.input("Args (space-separated): ")
+            return vim.split(input, " ", { trimempty = true })
+          end,
+          cwd        = "${workspaceFolder}",
+          pathBashdb = vim.fn.has("mac") == 1 and "/opt/homebrew/bin/bashdb" or "/usr/bin/bashdb",
+          env        = {},
+        },
+      }
+      dap.configurations.bash = dap.configurations.sh
+
       -- Virtual text: show variable values inline while debugging
       require("nvim-dap-virtual-text").setup({
         commented = true,

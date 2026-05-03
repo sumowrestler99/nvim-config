@@ -15,7 +15,7 @@ return {
     dependencies = { "mason-org/mason.nvim", "mfussenegger/nvim-dap" },
     event = "VeryLazy",
     opts = {
-      ensure_installed = { "codelldb", "cpptools", "debugpy", "checkmake" },
+      ensure_installed = { "codelldb", "cpptools", "debugpy", "bash-debug-adapter", "checkmake" },
       automatic_installation = true,
     },
   },
