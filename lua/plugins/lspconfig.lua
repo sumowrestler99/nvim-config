@@ -79,13 +79,15 @@ return {
             -- clangd: performance-tuned flags
             vim.lsp.config('clangd', { cmd = clangd_cmd })
 
-            -- sourcekit-lsp: ships with Xcode/Swift toolchain, not mason-managed
-            vim.lsp.config('sourcekit', {
-                cmd          = { "xcrun", "sourcekit-lsp" },
-                filetypes    = { "swift", "objective-c", "objective-cpp" },
-                root_markers = { "Package.swift", ".git" },
-            })
-            vim.lsp.enable('sourcekit')
+            -- sourcekit-lsp: macOS only (ships with Xcode)
+            if vim.fn.has("mac") == 1 then
+                vim.lsp.config('sourcekit', {
+                    cmd          = { "xcrun", "sourcekit-lsp" },
+                    filetypes    = { "swift", "objective-c", "objective-cpp" },
+                    root_markers = { "Package.swift", ".git" },
+                })
+                vim.lsp.enable('sourcekit')
+            end
 
             -- jsonls: schema-aware JSON via SchemaStore
             vim.lsp.config('jsonls', {
@@ -116,13 +118,15 @@ return {
             -- Neovim 0.10: legacy require('lspconfig') API
             local lspconfig = require('lspconfig')
 
-            -- sourcekit-lsp: ships with Xcode/Swift toolchain, not mason-managed
-            lspconfig.sourcekit.setup({
-                capabilities = lsp_capabilities,
-                cmd          = { "xcrun", "sourcekit-lsp" },
-                filetypes    = { "swift", "objective-c", "objective-cpp" },
-                root_dir     = lspconfig.util.root_pattern("Package.swift", ".git"),
-            })
+            -- sourcekit-lsp: macOS only (ships with Xcode)
+            if vim.fn.has("mac") == 1 then
+                lspconfig.sourcekit.setup({
+                    capabilities = lsp_capabilities,
+                    cmd          = { "xcrun", "sourcekit-lsp" },
+                    filetypes    = { "swift", "objective-c", "objective-cpp" },
+                    root_dir     = lspconfig.util.root_pattern("Package.swift", ".git"),
+                })
+            end
 
             -- Mason: ensure servers are installed
             require("mason-lspconfig").setup({
