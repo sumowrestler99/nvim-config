@@ -8,7 +8,7 @@ return {
     },
     ft = {
         "lua", "python", "typescript", "javascript",
-        "html", "css", "json", "yaml", "markdown",
+        "html", "css", "json", "jsonc", "yaml", "markdown",
         "go", "rust", "bash", "sh", "c", "cpp", "java",
         "swift", "objective-c", "objective-cpp",
     },
