@@ -24,6 +24,8 @@ return {
       local dap     = require("dap")
       local dapui   = require("dapui")
 
+      dap.defaults.fallback.timeout_sec = 30
+
       -- Gutter signs
       vim.fn.sign_define("DapBreakpoint",          { text = "●", texthl = "DapBreakpoint",         linehl = "", numhl = "" })
       vim.fn.sign_define("DapBreakpointCondition", { text = "◆", texthl = "DapBreakpointCondition", linehl = "", numhl = "" })
@@ -69,8 +71,12 @@ return {
 
       -- cppdbg adapter (ms-vscode.cpptools) — works with GDB 7+ for gdbserver
       dap.adapters.cppdbg = {
+        id      = "cppdbg",
         type    = "executable",
         command = vim.fn.stdpath("data") .. "/mason/bin/OpenDebugAD7",
+        options = {
+          initialize_timeout_sec = 30,
+        },
       }
 
       -- C / C++ configurations
@@ -104,7 +110,7 @@ return {
           stopAtEntry              = false,
         },
       }
-      dap.configurations.c = dap.configurations.cpp
+      dap.configurations.c = vim.deepcopy(dap.configurations.cpp)
 
       -- Python (debugpy)
       dap.adapters.python = {
@@ -176,6 +182,8 @@ return {
         commented = true,
       })
 
+
+
       -- DAP UI layout
       dapui.setup({
         layouts = {
@@ -199,6 +207,11 @@ return {
           },
         },
       })
+
+      -- Prioritize workspace-specific launch.json configurations by renaming the global provider key
+      -- so it is sorted alphabetically after "dap.launch.json".
+      dap.providers.configs['dap.z_global'] = dap.providers.configs['dap.global']
+      dap.providers.configs['dap.global'] = nil
     end,
   },
 }
