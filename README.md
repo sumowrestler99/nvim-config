@@ -22,14 +22,17 @@ A full-featured, opinionated Neovim 0.12+ configuration built for C/C++, Swift, 
 - **Terminal** — toggleterm floating terminal (`<C-\>`)
 - **Remote file editing** — netrw re-enabled for `scp://host/path` style remote files alongside neo-tree
 - **Animated cursor** — smear-cursor.nvim animates cursor movement with a smear trail
+- **Clean mode** — single keymap (`<leader>ul`) toggles all layout guides off/on (indent lines, git signs, fold column, inlay hints, diagnostic virtual text, color column)
+- **jsonc support** — `.vscode/*.json` files (launch.json, tasks.json) treated as JSON with Comments; LSP loads correctly for them
 
 ---
 
 ## Assumptions
 
-- You are running **macOS** (some paths and tools assume Homebrew, e.g. `/opt/homebrew/bin/nvim`)
+- Primarily designed for **macOS** but also works on **Linux** (used over SSH); Homebrew paths are macOS-specific, Mason binaries install platform-correctly on both
 - Your terminal uses a **Nerd Font** — all icons (gitsigns, lualine, cmp, noice, neo-tree) depend on it ([Iosevka Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Iosevka) recommended)
-- **Swift/Objective-C** development uses Xcode's `sourcekit-lsp` via `xcrun`; Xcode must be installed
+- **Swift/Objective-C** LSP (`sourcekit`) is macOS-only and is skipped automatically on Linux
+- `bashdb` must be installed separately for Bash debugging (`brew install bashdb` on macOS, `apt/dnf/pacman install bashdb` on Linux)
 - `GEMINI_API_KEY` is set in your shell environment for Avante AI features
 - Tab width is **4 spaces** by default; toggle to 2 with `<F4>`
 - The **leader key** is `\` (backslash)
@@ -114,6 +117,7 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 | `timeoutlen` | 500ms | Key sequence timeout |
 | `signcolumn` | yes | Always show sign column |
 | `showmode` | false | Mode shown by lualine/noice instead |
+| color column | 100 (80 for C/C++/Rust) | Vertical line at line length limit via smartcolumn.nvim |
 
 ---
 
@@ -146,6 +150,7 @@ Yanking (`y`) automatically copies to the local clipboard via OSC52. This works 
 | Normal | `<F4>` | Toggle tab width between 2 and 4 |
 | Normal | `<leader>pi` | Paste image from clipboard (img-clip) |
 | Normal | `<leader>ut` | Toggle undotree (opens on right) |
+| Normal | `<leader>ul` | Toggle all layout guides (clean mode) |
 
 ### Diagnostics
 
@@ -216,6 +221,13 @@ Inside the tree: `l`/`h` open/close nodes, `v` open in vsplit, `s` open in split
 | `<leader>gh` | File history (current file) |
 | `<leader>gH` | File history (entire repo) |
 | `<leader>gx` | Close diffview |
+
+In the 3-way merge view:
+
+| Mode | Key | Action |
+|------|-----|--------|
+| Normal/Visual | `g<` | Take diff from left (ours) |
+| Normal/Visual | `g>` | Take diff from right (theirs) |
 
 ### Git (Snacks picker)
 
@@ -324,7 +336,7 @@ Function keys are active **only during an active debug session** and are unset a
 
 Adapters installed via Mason: **codelldb** (C/C++ via LLDB), **cpptools** (C/C++ gdbserver attach, GDB 7+), **debugpy** (Python), **bash-debug-adapter** (Bash via bashdb; requires `brew install bashdb` on macOS or `apt/dnf/pacman install bashdb` on Linux).
 
-Per-project launch configs are read automatically from `.vscode/launch.json`.
+Per-project launch configs are read automatically from `.vscode/launch.json` and take **priority over global configs**. `.vscode/*.json` files are treated as jsonc (JSON with Comments) so inline comments don't cause errors.
 
 ### Documentation (Neogen)
 
