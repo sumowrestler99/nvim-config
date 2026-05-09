@@ -12,10 +12,10 @@ return {
         diagnostics = "nvim_lsp",
         diagnostics_indicator = function(count, level)
           local icons = {
-            error   = " ",
+            error   = " ",
             warning = " ",
             info    = " ",
-            hint    = " ",
+            hint    = " ",
           }
           return (icons[level] or "") .. count
         end,
