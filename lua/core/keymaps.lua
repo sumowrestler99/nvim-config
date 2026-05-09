@@ -36,3 +36,53 @@ end, { noremap = true, silent = true, desc = "Toggle tab width 2/4" })
 
 -- Example: Close current buffer without closing window
 -- map("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete Buffer" })
+
+-- Toggle all layout guides (Indent lines, Folds, Smart/Color columns, Inlay hints, Git signs, and Diagnostic virtual text) simultaneously
+map("n", "<leader>ul", function()
+    -- 1. Toggle Snacks Indent Guides (if installed and loaded)
+    if pcall(require, "snacks") then
+        Snacks.toggle.indent():toggle()
+    end
+
+    -- 2. Toggle Git Signs in the left gutter (if installed and loaded)
+    if pcall(require, "gitsigns") then
+        require("gitsigns").toggle_signs()
+    end
+
+    -- 3. Toggle Fold Column (0 <-> auto)
+    if vim.wo.foldcolumn == "0" then
+        vim.wo.foldcolumn = "auto"
+    else
+        vim.wo.foldcolumn = "0"
+    end
+
+    -- 4. Toggle LSP Inlay Hints (Parameter annotations) safely, scoped to current buffer (bufnr = 0)
+    if vim.lsp.inlay_hint then
+        local is_enabled = vim.lsp.inlay_hint.is_enabled({ bufnr = 0 })
+        vim.lsp.inlay_hint.enable(not is_enabled, { bufnr = 0 })
+    end
+
+    -- 5. Toggle LSP Diagnostics inline Virtual Text (Red squiggles/error messages)
+    local diag_config = vim.diagnostic.config() or {}
+    if diag_config.virtual_text == false then
+        vim.diagnostic.config({ virtual_text = true })
+    else
+        vim.diagnostic.config({ virtual_text = false })
+    end
+
+    -- 6. Toggle Color Column (Clear <-> 100/80 guideline)
+    if vim.wo.colorcolumn == "" then
+        -- Intelligently restore correct limit based on active filetype
+        local ft = vim.bo.filetype
+        if ft == "c" or ft == "cpp" or ft == "rust" then
+            vim.wo.colorcolumn = "80"
+        else
+            vim.wo.colorcolumn = "100"
+        end
+        vim.notify("Layout Guides: ENABLED", vim.log.levels.INFO)
+    else
+        vim.wo.colorcolumn = ""
+        vim.notify("Layout Guides: DISABLED (Clean Mode)", vim.log.levels.INFO)
+    end
+end, { noremap = true, silent = true, desc = "Toggle Layout Guides (Clean Mode)" })
+

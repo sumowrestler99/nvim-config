@@ -36,5 +36,12 @@ return {
                 folder_statuses = "only_folded",
             },
         },
+        keymaps = {
+            view = {
+                -- Custom 2-character shortcuts for 3-way merge resolution
+                { { "n", "x" }, "g<", function() require("diffview.actions").diffget("ours")() end, { desc = "Obtain diff from Left (ours)" } },
+                { { "n", "x" }, "g>", function() require("diffview.actions").diffget("theirs")() end, { desc = "Obtain diff from Right (theirs)" } },
+            }
+        },
     },
 }
