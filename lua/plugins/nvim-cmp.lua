@@ -59,7 +59,6 @@ vim.list_extend(sources, { { name = 'luasnip', keyword_length = 2 } })
 
 return {
     'hrsh7th/nvim-cmp',
-    enabled = true, -- Re-enabled
     event = "InsertEnter",
     dependencies = dependencies,
 

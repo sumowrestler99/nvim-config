@@ -1,6 +1,5 @@
 return {
     "folke/todo-comments.nvim",
-    enabled = true, -- Re-enabled
     dependencies = "nvim-lua/plenary.nvim",
     event = "BufReadPost",
     keys = {

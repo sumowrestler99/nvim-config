@@ -4,7 +4,6 @@ local extra = require('core.local').get('avante')
 
 return {
     "yetone/avante.nvim",
-    enabled = true, -- Re-enabled
     event   = "VeryLazy",
     version = false, -- Never set this value to "*"! Never!
     -- Native Rust libs (avante_tokenizers/templates/repo_map/html2md).

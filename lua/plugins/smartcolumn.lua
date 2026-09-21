@@ -1,6 +1,5 @@
 return {
     "m4xshen/smartcolumn.nvim",
-    enabled = true, -- Re-enabled with optimization
     event = { "BufReadPost", "BufNewFile" },
     opts = {
         colorcolumn = "100",

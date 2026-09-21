@@ -16,7 +16,6 @@ vim.list_extend(filetypes, extra.filetypes or {})
 
 return {
     'neovim/nvim-lspconfig',
-    enabled = true, -- Re-enabled
     dependencies = {
         "hrsh7th/cmp-nvim-lsp",
         "mason-org/mason.nvim",

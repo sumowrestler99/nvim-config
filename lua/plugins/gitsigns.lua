@@ -1,6 +1,5 @@
 return {
   'lewis6991/gitsigns.nvim',
-    enabled = true, -- Re-enabled
     -- Load gitsigns after a buffer is read from disk.
     -- This means it only activates when you open a file, not for empty scratch buffers, etc.
     event = "BufReadPost",
