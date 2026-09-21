@@ -52,8 +52,10 @@ vim.opt.undofile = true           -- Persist undo history across sessions
 -- Better completion menu
 vim.opt.pumheight = 10            -- Limit completion popup to 10 items
 
--- LSP
-vim.lsp.log.set_level("OFF")
+-- Diagnostics. Note vim.diagnostic is independent of vim.lsp, so configuring
+-- it here costs nothing at startup. The vim.lsp.log level is set in the
+-- lspconfig spec instead -- touching vim.lsp here would load the entire LSP
+-- module before any server exists.
 vim.diagnostic.config({
     float        = { border = "rounded", source = "if_many" },
     virtual_text = true,

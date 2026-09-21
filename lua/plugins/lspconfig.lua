@@ -28,6 +28,10 @@ return {
     },
     ft = filetypes,
     config = function()
+        -- Lives here rather than in core/options.lua: referencing vim.lsp at
+        -- startup pulls in the whole LSP module before any server exists.
+        vim.lsp.log.set_level("OFF")
+
         vim.api.nvim_create_autocmd('LspAttach', {
             group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
             callback = function(ev)
@@ -124,24 +128,36 @@ return {
             vim.lsp.enable('sourcekit')
         end
 
+        -- SchemaStore's catalog costs ~6 ms to parse, and this spec loads for
+        -- any of 32 filetypes -- so opening a .lua file was paying for it.
+        -- Build it in before_init, i.e. only once the server actually starts.
+        --
+        -- The empty `settings = {}` and the in-place mutation are both
+        -- deliberate. vim/lsp/client.lua does `settings = config.settings or {}`
+        -- by reference, so REASSIGNING config.settings in before_init (as the
+        -- example in client.lua's own docs does) leaves client.settings
+        -- pointing at the original table and the schemas are never sent.
+
         -- jsonls: schema-aware JSON via SchemaStore
         vim.lsp.config('jsonls', {
-            settings = {
-                json = {
+            settings = {},
+            before_init = function(_, config)
+                config.settings.json = {
                     schemas  = require('schemastore').json.schemas(),
                     validate = { enable = true },
-                },
-            },
+                }
+            end,
         })
 
         -- yamlls: schema-aware YAML via SchemaStore
         vim.lsp.config('yamlls', {
-            settings = {
-                yaml = {
+            settings = {},
+            before_init = function(_, config)
+                config.settings.yaml = {
                     schemaStore = { enable = false, url = "" },
                     schemas     = require('schemastore').yaml.schemas(),
-                },
-            },
+                }
+            end,
         })
 
         -- Mason: ensure servers are installed; auto-enables them via vim.lsp.enable()
