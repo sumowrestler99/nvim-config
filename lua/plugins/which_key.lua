@@ -113,8 +113,11 @@ return {
 
       -- Mason
       { "<leader>m",  group = "Mason",     icon = { icon = "󰏗", color = "purple" } },
-      { "<leader>mi", "<cmd>Mason<cr>",       desc = "Open Mason UI" },
-      { "<leader>mu", "<cmd>MasonUpdate<cr>", desc = "Update Mason registries" },
+      -- Description only. The mappings themselves are the `keys` entries in
+      -- mason.lua, which is what lazy-loads mason on first use -- defining an
+      -- rhs here would shadow them with an eager mapping.
+      { "<leader>mi", desc = "Open Mason UI" },
+      { "<leader>mu", desc = "Update Mason registries" },
 
       -- Function keys
       { "<F4>", desc = "Toggle tab width 2/4" },
