@@ -59,10 +59,13 @@ require("core.keymaps")
 -- Built-in nvim 0.12 undotree: inject lua path before lazy's loader intercepts
 package.path = package.path .. ";" .. vim.env.VIMRUNTIME .. "/pack/dist/opt/nvim.undotree/lua/?.lua"
 
+-- Public plugin specs, plus any machine-local ones from the gitignored
+-- lua/local/plugins/ directory.
+local spec = { { import = "plugins" } }
+vim.list_extend(spec, require("core.local").plugin_specs())
+
 require('lazy').setup({
-    spec = {
-        { import = "plugins" },
-    },
+    spec = spec,
     ui = { border = "rounded" },
     checker = { enabled = false, concurrency = 1, frequency = 86400 }, --automatically check for plugin updates
     -- lazy can generate helptags from the headings in markdown readme files,

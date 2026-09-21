@@ -64,4 +64,19 @@ function M.get(name)
   return M.load(name) or {}
 end
 
+--- lazy.nvim import entries for machine-local plugin specs.
+---
+--- `lua/local/plugins/` is gitignored, so plugins that must not be published
+--- live there instead of in `lua/plugins/`. lazy.nvim errors on an import of a
+--- directory that does not exist, hence the probe.
+---
+---@return table[] # Splice into `lazy.setup{ spec = ... }`; empty when absent.
+function M.plugin_specs()
+  local dir = vim.fn.stdpath('config') .. '/lua/local/plugins'
+  if vim.uv.fs_stat(dir) then
+    return { { import = 'local.plugins' } }
+  end
+  return {}
+end
+
 return M
