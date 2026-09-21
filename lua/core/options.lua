@@ -13,6 +13,8 @@ vim.opt.mousemoveevent = true     -- Enable mouse movement events (for some plug
 
 -- Clipboard: OSC52 copy is handled in autocmds.lua (TextYankPost/YankHighlight).
 -- paste (p/P) uses nvim's unnamed register — no terminal round-trip needed.
+-- This is why there is no vim-oscyank plugin: Neovim 0.10+ ships its own OSC52
+-- provider, which works both locally and over SSH.
 
 -- Indentation and formatting
 vim.opt.autoindent = true         -- Copy indent from current line when starting a new line
