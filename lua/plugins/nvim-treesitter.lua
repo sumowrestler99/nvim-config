@@ -1,9 +1,157 @@
+-- nvim-treesitter, `main` branch.
+--
+-- `master` is frozen -- its README states it is "provided for backward
+-- compatibility only" and that all future work happens on `main`. The two
+-- branches are the halves of a rewrite, and this config was straddling both:
+-- nvim-treesitter on master, nvim-treesitter-textobjects on main. That skew is
+-- what forced the global `vim.treesitter.get_node_text` monkeypatch that used
+-- to sit in init.lua.
+--
+-- `main` deletes most of the old configuration surface. There is no
+-- `nvim-treesitter.configs` module at all, so `configs.setup{}`,
+-- `ensure_installed`, `highlight.enable`, `auto_install` and
+-- `incremental_selection` are all gone. Highlighting is Neovim's own
+-- `vim.treesitter.start()`, parsers install into `stdpath('data')/site`
+-- instead of the plugin directory, and compilation is done by the
+-- `tree-sitter` CLI (`tree-sitter build`) rather than an internally-selected
+-- compiler -- so `install.compilers` no longer exists either.
+--
+-- Everything master used to do declaratively is therefore wired up by hand
+-- below.
+
+-- Parsers to keep installed. Under master this was `ensure_installed` plus
+-- whatever `auto_install` had accumulated; this list is the set that was
+-- actually present, so the migration does not silently drop languages.
+-- Filtered against get_available() at run time so an unknown name cannot
+-- produce a warning on every update.
+--
+-- Two entries from the master-era set are deliberately absent:
+--   jsonc  not a parser on main; vim.treesitter.language.get_lang('jsonc')
+--          resolves to 'json', which is installed, so jsonc still highlights.
+--   tmux   removed from main's parser list upstream. No loss in practice --
+--          'tmux' is not in this spec's `ft`, so the plugin never loaded for
+--          those buffers anyway.
+local ensure_installed = {
+    'bash', 'c', 'cpp', 'csv', 'diff', 'html', 'json', 'lua', 'make',
+    'markdown', 'markdown_inline', 'perl', 'python', 'starlark', 'textproto',
+    'vim', 'vimdoc', 'yaml',
+}
+
+--- Selects a treesitter node as a charwise visual selection.
+---
+--- Sets the '< and '> marks and reselects with `gv` rather than entering
+--- visual mode with `normal! v`. `normal! v` only works when the caller is in
+--- normal mode, so it breaks for grn/grc/grm, which are invoked from a
+--- selection that is already active.
+---@param node TSNode
+local function select_node(node)
+    local srow, scol, erow, ecol = node:range()
+    -- range() end columns are exclusive; a node ending at column 0 really ends
+    -- at the end of the previous line.
+    if ecol == 0 then
+        erow = erow - 1
+        local line = vim.api.nvim_buf_get_lines(0, erow, erow + 1, false)[1] or ''
+        ecol = #line
+    end
+    local buf = vim.api.nvim_get_current_buf()
+    -- Marks are 1-indexed for rows and columns; node ranges are 0-indexed.
+    vim.fn.setpos("'<", { buf, srow + 1, scol + 1, 0 })
+    vim.fn.setpos("'>", { buf, erow + 1, ecol, 0 })
+    vim.cmd('normal! gv')
+end
+
+--- Incremental selection.
+---
+--- `main` removed this feature outright with no replacement, so it is
+--- reimplemented here directly against Neovim's treesitter API. The selection
+--- history is a per-buffer stack so that grm can walk back down it.
+local incremental = {}
+do
+    ---@type table<integer, TSNode[]>
+    local stacks = {}
+
+    vim.api.nvim_create_autocmd({ 'BufDelete', 'BufWipeout' }, {
+        group = vim.api.nvim_create_augroup('UserTSIncrementalSelection', { clear = true }),
+        callback = function(args) stacks[args.buf] = nil end,
+    })
+
+    --- Nearest ancestor whose range differs from `node`'s.
+    ---
+    --- Ancestors that span exactly the same text are skipped, otherwise a
+    --- single keypress would appear to do nothing. The comparison is on the
+    --- full (row, col) range rather than just the rows, so a parent that is
+    --- wider only in columns still counts as growth.
+    ---@param node TSNode
+    ---@return TSNode?
+    local function grow(node)
+        local srow, scol, erow, ecol = node:range()
+        local parent = node:parent()
+        while parent do
+            local psrow, pscol, perow, pecol = parent:range()
+            if psrow ~= srow or pscol ~= scol or perow ~= erow or pecol ~= ecol then
+                return parent
+            end
+            parent = parent:parent()
+        end
+        return nil
+    end
+
+    function incremental.init()
+        local buf = vim.api.nvim_get_current_buf()
+        local node = vim.treesitter.get_node()
+        if not node then return end
+        stacks[buf] = { node }
+        select_node(node)
+    end
+
+    function incremental.node_incremental()
+        local buf = vim.api.nvim_get_current_buf()
+        local stack = stacks[buf]
+        if not stack or #stack == 0 then return incremental.init() end
+        local parent = grow(stack[#stack])
+        if not parent then
+            select_node(stack[#stack])
+            return
+        end
+        stack[#stack + 1] = parent
+        select_node(parent)
+    end
+
+    --- Approximation of master's `scope_incremental`, which relied on the
+    --- locals.scm scope captures. Here it expands until the node covers more
+    --- lines than the current one, which lands on the enclosing block or
+    --- function in practice.
+    function incremental.scope_incremental()
+        local buf = vim.api.nvim_get_current_buf()
+        local stack = stacks[buf]
+        if not stack or #stack == 0 then return incremental.init() end
+        local current = stack[#stack]
+        local start_lines = current:end_() - current:start()
+        local node = current
+        while true do
+            local parent = grow(node)
+            if not parent then break end
+            node = parent
+            stack[#stack + 1] = parent
+            if (parent:end_() - parent:start()) > start_lines then break end
+        end
+        select_node(node)
+    end
+
+    function incremental.node_decremental()
+        local buf = vim.api.nvim_get_current_buf()
+        local stack = stacks[buf]
+        if not stack or #stack <= 1 then return end
+        stack[#stack] = nil
+        select_node(stack[#stack])
+    end
+end
+
 return {
     'nvim-treesitter/nvim-treesitter',
-    enabled = true, -- Re-enabled
+    branch = 'main',
     build = ':TSUpdate',
     dependencies = {
-        "smartpde/tree-sitter-cpp-google",
         {
             "lewis6991/tree-sitter-tcl",
             build = "make",
@@ -16,37 +164,94 @@ return {
         "go", "rust", "bash", "sh", "c", "cpp", "java", "tcl",
     },
     config = function()
-        require("tree-sitter-cpp-google").setup()
-        require('nvim-treesitter.install').compilers = { "clang", "gcc" }
+        local ts = require('nvim-treesitter')
+        ts.setup()
 
         vim.api.nvim_set_hl(0, "fec", { link = "Identifier" })
 
-        require('nvim-treesitter.configs').setup({
-            ensure_installed = { "c", "lua", "vim", "markdown", "bash" },
-            sync_install     = false,
-            auto_install     = true,
-            ignore_install   = { "javascript" },
-            highlight = {
-                enable = true,
-                -- Disable for files over 500 KB to avoid slowdowns
-                disable = function(_, buf)
-                    local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
-                    if ok and stats and stats.size > 500 * 1024 then
-                        return true
-                    end
-                end,
-                additional_vim_regex_highlighting = false,
-            },
-            incremental_selection = {
-                enable  = true,
-                keymaps = {
-                    init_selection    = "gnn",
-                    node_incremental  = "grn",
-                    scope_incremental = "grc",
-                    node_decremental  = "grm",
-                },
-            },
+        local group = vim.api.nvim_create_augroup('UserTreesitter', { clear = true })
+
+        -- Google's C++ grammar, which extends the upstream one.
+        --
+        -- Under master this came from the smartpde/tree-sitter-cpp-google
+        -- plugin, whose setup() called parsers.get_parser_configs(). That
+        -- function does not exist on main -- parsers.lua is now a plain data
+        -- table -- so the plugin is dropped and the entry is written directly.
+        -- `User TSUpdate` is the documented hook, fired by install/update
+        -- before they read the parser table.
+        --
+        -- No `generate` key: the repo ships a pre-generated src/parser.c.
+        vim.api.nvim_create_autocmd('User', {
+            pattern = 'TSUpdate',
+            group = group,
+            callback = function()
+                require('nvim-treesitter.parsers').cpp = {
+                    install_info = {
+                        url = 'https://github.com/smartpde/tree-sitter-cpp-google',
+                        revision = 'df6440a13741700414d12f51355d8e8cf30f5b14',
+                    },
+                    requires = { 'c' },
+                    tier = 2,
+                }
+            end,
         })
+
+        -- Replacement for master's `ensure_installed`. install() is a no-op for
+        -- parsers that are already present, so this is cheap on every start.
+        local available = {}
+        for _, lang in ipairs(ts.get_available()) do
+            available[lang] = true
+        end
+        local want = vim.tbl_filter(function(lang) return available[lang] end, ensure_installed)
+        if #want > 0 then
+            ts.install(want)
+        end
+
+        -- Replacement for master's `highlight` module and `auto_install`.
+        local installed = {}
+        for _, lang in ipairs(ts.get_installed('parsers')) do
+            installed[lang] = true
+        end
+
+        ---@param buf integer
+        local function start_highlighting(buf)
+            if not vim.api.nvim_buf_is_valid(buf) then return end
+            local lang = vim.treesitter.language.get_lang(vim.bo[buf].filetype)
+            if not lang then return end
+
+            -- Skip very large files; treesitter parsing dominates there.
+            local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
+            if ok and stats and stats.size > 500 * 1024 then return end
+
+            if installed[lang] then
+                pcall(vim.treesitter.start, buf, lang)
+            elseif available[lang] then
+                -- auto_install: fetch it, then highlight once it lands.
+                installed[lang] = true -- do not queue the same language twice
+                ts.install({ lang }):await(vim.schedule_wrap(function()
+                    pcall(vim.treesitter.start, buf, lang)
+                end))
+            end
+        end
+
+        vim.api.nvim_create_autocmd('FileType', {
+            group = group,
+            callback = function(args) start_highlighting(args.buf) end,
+        })
+
+        -- The FileType event for the buffer that triggered this plugin's `ft`
+        -- load has already fired, so it would otherwise never be highlighted.
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+            if vim.api.nvim_buf_is_loaded(buf) then
+                start_highlighting(buf)
+            end
+        end
+
+        -- Incremental selection (see the implementation above).
+        vim.keymap.set('n', 'gnn', incremental.init,              { desc = 'Init selection' })
+        vim.keymap.set('x', 'grn', incremental.node_incremental,  { desc = 'Increment node' })
+        vim.keymap.set('x', 'grc', incremental.scope_incremental, { desc = 'Increment scope' })
+        vim.keymap.set('x', 'grm', incremental.node_decremental,  { desc = 'Decrement node' })
 
         -- textobjects: select
         require("nvim-treesitter-textobjects").setup({ select = { lookahead = true } })
