@@ -24,7 +24,9 @@ return {
       local dap     = require("dap")
       local dapui   = require("dapui")
 
-      dap.set_log_level('TRACE')
+      -- TRACE writes every DAP protocol message to dap.log. Raise it back
+      -- temporarily when diagnosing an adapter that will not attach.
+      dap.set_log_level('WARN')
       dap.defaults.fallback.timeout_sec = 30
 
       -- Gutter signs
