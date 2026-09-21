@@ -47,26 +47,35 @@ return {
       on_attach = function(bufnr)
         local gs = package.loaded.gitsigns
 
-        local function map(mode, lhs, rhs, desc)
-          vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
+        local function map(mode, lhs, rhs, desc, opts)
+          vim.keymap.set(mode, lhs, rhs,
+            vim.tbl_extend('force', { buffer = bufnr, desc = desc }, opts or {}))
         end
 
-        -- Hunk navigation
+        -- Hunk navigation.
+        --
+        -- `expr = true` is required and was missing: these callbacks return a
+        -- key sequence so that in diff mode they fall through to Vim's own
+        -- ]c/[c. Without `expr` the return value is discarded, so ]c and [c
+        -- did nothing at all inside a diff.
         map('n', ']c', function()
           if vim.wo.diff then return ']c' end
-          vim.schedule(gs.next_hunk)
+          vim.schedule(function() gs.nav_hunk('next') end)
           return '<Ignore>'
-        end, 'Next hunk')
+        end, 'Next hunk', { expr = true })
         map('n', '[c', function()
           if vim.wo.diff then return '[c' end
-          vim.schedule(gs.prev_hunk)
+          vim.schedule(function() gs.nav_hunk('prev') end)
           return '<Ignore>'
-        end, 'Prev hunk')
+        end, 'Prev hunk', { expr = true })
 
         -- Stage / unstage
-        map('n', '<leader>hs', gs.stage_hunk,        'Stage hunk')
+        map('n', '<leader>hs', gs.stage_hunk,        'Stage hunk (toggles if staged)')
         map('n', '<leader>hS', gs.stage_buffer,      'Stage buffer')
-        map('n', '<leader>hu', gs.undo_stage_hunk,   'Undo stage hunk')
+        -- undo_stage_hunk is deprecated. With signs_staged_enable (default on)
+        -- stage_hunk on an already-staged hunk unstages it, so this is the
+        -- documented replacement. Kept under <leader>hu for muscle memory.
+        map('n', '<leader>hu', gs.stage_hunk,        'Unstage hunk')
         map('n', '<leader>hU', gs.reset_buffer_index,'Unstage buffer')
         map('v', '<leader>hs', function()
           gs.stage_hunk { vim.fn.line('.'), vim.fn.line('v') }
