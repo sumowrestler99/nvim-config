@@ -1,24 +1,48 @@
+-- Optional machine-local overrides (extra filetypes, private language servers).
+-- Empty table when lua/local/lspconfig.lua does not exist.
+local extra = require('core.local').get('lspconfig')
+
+-- Filetypes that should trigger loading the LSP stack. A machine-local module
+-- may append its own.
+local filetypes = {
+    "lua", "python", "typescript", "javascript",
+    "html", "css", "json", "jsonc", "yaml", "markdown",
+    "go", "rust", "bash", "sh", "c", "cpp", "java",
+    "swift", "objective-c", "objective-cpp",
+    "proto", "textpb", "bzl", "gss", "sql", "xml",
+    "dart",
+}
+vim.list_extend(filetypes, extra.filetypes or {})
+
 return {
     'neovim/nvim-lspconfig',
+    enabled = true, -- Re-enabled
     dependencies = {
         "hrsh7th/cmp-nvim-lsp",
         "mason-org/mason.nvim",
         "mason-org/mason-lspconfig.nvim",
         "b0o/schemastore.nvim",
+        -- Attached to document-symbol-capable clients in the LspAttach handler
+        -- below. Declared here rather than relying on barbecue pulling it in.
+        "SmiteshP/nvim-navic",
     },
-    ft = {
-        "lua", "python", "typescript", "javascript",
-        "html", "css", "json", "jsonc", "yaml", "markdown",
-        "go", "rust", "bash", "sh", "c", "cpp", "java",
-        "swift", "objective-c", "objective-cpp",
-    },
+    ft = filetypes,
     config = function()
         vim.api.nvim_create_autocmd('LspAttach', {
             group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
             callback = function(ev)
+                local bufnr = ev.buf
+                local bufname = vim.api.nvim_buf_get_name(bufnr)
+                if bufname:match("%.cint$") then
+                    local client_id = ev.data and ev.data.client_id
+                    if client_id then
+                        vim.lsp.buf_detach_client(bufnr, client_id)
+                    end
+                    return
+                end
+
                 local client = vim.lsp.get_client_by_id(ev.data.client_id)
                 if not client then return end
-                local bufnr = ev.buf
                 local bufopts = { noremap = true, silent = true, buffer = bufnr }
 
                 if client.server_capabilities.documentSymbolProvider then
@@ -61,111 +85,74 @@ return {
             lineFoldingOnly = true,
         }
 
-        local clangd_cmd = {
-            "clangd",
-            "--background-index",         -- build symbol index in background
-            "--clang-tidy=0",             -- disable clang-tidy (major perf win)
-            "--completion-style=bundled", -- group overloads → fewer items, faster
-            "--header-insertion=never",   -- skip auto-include analysis per completion
-            "--pch-storage=memory",       -- keep precompiled headers in RAM vs disk
-            "--j=" .. #vim.uv.cpu_info(),  -- indexing threads (dynamic core count)
-            "--log=error",                -- suppress info/warning log noise
-        }
+        -- Applies to every server unless overridden below.
+        vim.lsp.config('*', { capabilities = lsp_capabilities })
 
-        if vim.fn.has('nvim-0.11') == 1 then
-            -- Neovim 0.11+: native vim.lsp.config / vim.lsp.enable API
-            vim.lsp.config('*', { capabilities = lsp_capabilities })
+        -- clangd: performance-tuned flags
+        vim.lsp.config('clangd', {
+            cmd = {
+                "clangd",
+                "--background-index",         -- build symbol index in background
+                "--clang-tidy=0",             -- disable clang-tidy (major perf win)
+                "--completion-style=bundled", -- group overloads → fewer items, faster
+                "--header-insertion=never",   -- skip auto-include analysis per completion
+                "--pch-storage=memory",       -- keep precompiled headers in RAM vs disk
+                "--j=" .. #vim.uv.cpu_info(), -- indexing threads (dynamic core count)
+                "--log=error",                -- suppress info/warning log noise
+            },
+            root_dir = function(bufnr, on_dir)
+                local filepath = vim.api.nvim_buf_get_name(bufnr)
+                if filepath:match("%.cint$") then return end
+                -- A machine-local module can claim paths that another server owns.
+                if extra.skip_clangd and extra.skip_clangd(filepath) then return end
 
-            -- clangd: performance-tuned flags
-            vim.lsp.config('clangd', { cmd = clangd_cmd })
+                local markers = { 'compile_commands.json', '.clangd', '.git' }
+                local found = vim.fs.find(markers, { path = filepath, upward = true })[1]
+                if found then
+                    on_dir(vim.fs.dirname(found))
+                end
+            end,
+        })
 
-            -- sourcekit-lsp: macOS only (ships with Xcode)
-            if vim.fn.has("mac") == 1 then
-                vim.lsp.config('sourcekit', {
-                    cmd          = { "xcrun", "sourcekit-lsp" },
-                    filetypes    = { "swift", "objective-c", "objective-cpp" },
-                    root_markers = { "Package.swift", ".git" },
-                })
-                vim.lsp.enable('sourcekit')
-            end
+        -- sourcekit-lsp: macOS only (ships with Xcode)
+        if vim.fn.has("mac") == 1 then
+            vim.lsp.config('sourcekit', {
+                cmd          = { "xcrun", "sourcekit-lsp" },
+                filetypes    = { "swift", "objective-c", "objective-cpp" },
+                root_markers = { "Package.swift", ".git" },
+            })
+            vim.lsp.enable('sourcekit')
+        end
 
-            -- jsonls: schema-aware JSON via SchemaStore
-            vim.lsp.config('jsonls', {
-                settings = {
-                    json = {
-                        schemas  = require('schemastore').json.schemas(),
-                        validate = { enable = true },
-                    },
+        -- jsonls: schema-aware JSON via SchemaStore
+        vim.lsp.config('jsonls', {
+            settings = {
+                json = {
+                    schemas  = require('schemastore').json.schemas(),
+                    validate = { enable = true },
                 },
-            })
+            },
+        })
 
-            -- yamlls: schema-aware YAML via SchemaStore
-            vim.lsp.config('yamlls', {
-                settings = {
-                    yaml = {
-                        schemaStore = { enable = false, url = "" },
-                        schemas     = require('schemastore').yaml.schemas(),
-                    },
+        -- yamlls: schema-aware YAML via SchemaStore
+        vim.lsp.config('yamlls', {
+            settings = {
+                yaml = {
+                    schemaStore = { enable = false, url = "" },
+                    schemas     = require('schemastore').yaml.schemas(),
                 },
-            })
+            },
+        })
 
-            -- Mason: ensure servers are installed; auto-enables them via vim.lsp.enable()
-            require("mason-lspconfig").setup({
-                ensure_installed = { "clangd", "lua_ls", "bashls", "pyright", "marksman", "jsonls", "yamlls" },
-            })
+        -- Mason: ensure servers are installed; auto-enables them via vim.lsp.enable()
+        require("mason-lspconfig").setup({
+            ensure_installed = { "clangd", "lua_ls", "bashls", "pyright", "marksman", "jsonls", "yamlls" },
+        })
 
-        else
-            -- Neovim 0.10: legacy require('lspconfig') API
-            local lspconfig = require('lspconfig')
-
-            -- sourcekit-lsp: macOS only (ships with Xcode)
-            if vim.fn.has("mac") == 1 then
-                lspconfig.sourcekit.setup({
-                    capabilities = lsp_capabilities,
-                    cmd          = { "xcrun", "sourcekit-lsp" },
-                    filetypes    = { "swift", "objective-c", "objective-cpp" },
-                    root_dir     = lspconfig.util.root_pattern("Package.swift", ".git"),
-                })
-            end
-
-            -- Mason: ensure servers are installed
-            require("mason-lspconfig").setup({
-                ensure_installed = { "clangd", "lua_ls", "bashls", "pyright", "marksman", "jsonls", "yamlls" },
-                handlers = {
-                    function(server_name)
-                        lspconfig[server_name].setup({ capabilities = lsp_capabilities })
-                    end,
-                    ["clangd"] = function()
-                        lspconfig.clangd.setup({
-                            capabilities = lsp_capabilities,
-                            cmd          = clangd_cmd,
-                        })
-                    end,
-                    ["jsonls"] = function()
-                        lspconfig.jsonls.setup({
-                            capabilities = lsp_capabilities,
-                            settings = {
-                                json = {
-                                    schemas  = require('schemastore').json.schemas(),
-                                    validate = { enable = true },
-                                },
-                            },
-                        })
-                    end,
-                    ["yamlls"] = function()
-                        lspconfig.yamlls.setup({
-                            capabilities = lsp_capabilities,
-                            settings = {
-                                yaml = {
-                                    schemaStore = { enable = false, url = "" },
-                                    schemas     = require('schemastore').yaml.schemas(),
-                                },
-                            },
-                        })
-                    end,
-                },
-            })
-
+        -- Servers that only exist on this machine, registered last so they can
+        -- override anything above.
+        if extra.setup then
+            extra.setup()
         end
 
         -- Visual range format
