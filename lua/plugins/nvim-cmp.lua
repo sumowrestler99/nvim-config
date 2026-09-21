@@ -1,15 +1,68 @@
+-- Optional machine-local overrides (extra sources and their menu labels).
+-- Empty table when lua/local/cmp.lua does not exist.
+local extra = require('core.local').get('cmp')
+
+-- Hoisted out of the `format` callback below, which runs once per completion
+-- item: rebuilding these tables per item allocated 25 entries on every
+-- keystroke's worth of candidates.
+local kind_icons = {
+    Text          = "󰉿",
+    Method        = "󰆧",
+    Function      = "󰊕",
+    Constructor   = "",
+    Field         = "󰜢",
+    Variable      = "󰀫",
+    Class         = "󰠱",
+    Interface     = "󰞀",
+    Module        = "󰏗",
+    Property      = "󰖷",
+    Unit          = "󰑭",
+    Value         = "󰎠",
+    Enum          = "󰒻",
+    Keyword       = "󰌋",
+    Snippet       = "󰐋",
+    Color         = "󰏘",
+    File          = "󰈙",
+    Reference     = "󰈇",
+    Folder        = "󰉋",
+    EnumMember    = "󰊻",
+    Constant      = "󰏿",
+    Struct        = "󰙅",
+    Event         = "",
+    Operator      = "󰆕",
+    TypeParameter = "󰊄",
+}
+
+local menu_icon = vim.tbl_extend('force', {
+    nvim_lsp = "[LSP]",
+    luasnip  = "[Snip]",
+    buffer   = "[Buf]",
+    path     = "[Path]",
+}, extra.menu_icons or {})
+
+local dependencies = {
+    "hrsh7th/cmp-nvim-lsp",
+    "saadparwaiz1/cmp_luasnip",
+    {
+        'L3MON4D3/LuaSnip',
+        build = "make install_jsregexp",
+    },
+    'rafamadriz/friendly-snippets',
+}
+vim.list_extend(dependencies, extra.dependencies or {})
+
+-- cmp breaks ties by position in this list, so machine-local sources sit
+-- between nvim_lsp and luasnip to preserve the original ranking.
+local sources = { { name = 'nvim_lsp', keyword_length = 2 } }
+vim.list_extend(sources, extra.sources or {})
+vim.list_extend(sources, { { name = 'luasnip', keyword_length = 2 } })
+
 return {
     'hrsh7th/nvim-cmp',
+    enabled = true, -- Re-enabled
     event = "InsertEnter",
-    dependencies = {
-        "hrsh7th/cmp-nvim-lsp",
-        "saadparwaiz1/cmp_luasnip",
-        {
-            'L3MON4D3/LuaSnip',
-            build = "make install_jsregexp",
-        },
-        'rafamadriz/friendly-snippets',
-    },
+    dependencies = dependencies,
+
     config = function()
         require('luasnip.loaders.from_vscode').lazy_load()
 
@@ -31,10 +84,7 @@ return {
                     luasnip.lsp_expand(args.body)
                 end,
             },
-            sources = {
-                { name = 'nvim_lsp', keyword_length = 1 },
-                { name = 'luasnip',  keyword_length = 2 },
-            },
+            sources = sources,
             performance = {
                 debounce = 300, -- ms delay before completion popup appears
                 throttle = 60,
@@ -50,39 +100,6 @@ return {
             formatting = {
                 fields = { 'kind', 'abbr', 'menu' },
                 format = function(entry, item)
-                    local kind_icons = {
-                    Text          = "󰉿",
-                    Method        = "󰆧",
-                    Function      = "󰊕",
-                    Constructor   = "",
-                    Field         = "󰜢",
-                    Variable      = "󰀫",
-                    Class         = "󰠱",
-                    Interface     = "󰞀",
-                    Module        = "󰏗",
-                    Property      = "󰖷",
-                    Unit          = "󰑭",
-                    Value         = "󰎠",
-                    Enum          = "󰒻",
-                    Keyword       = "󰌋",
-                    Snippet       = "󰐋",
-                    Color         = "󰏘",
-                    File          = "󰈙",
-                    Reference     = "󰈇",
-                    Folder        = "󰉋",
-                    EnumMember    = "󰊻",
-                    Constant      = "󰏿",
-                    Struct        = "󰙅",
-                    Event         = "",
-                    Operator      = "󰆕",
-                    TypeParameter = "󰊄",
-                    }
-                    local menu_icon = {
-                        nvim_lsp = "[LSP]",
-                        luasnip  = "[Snip]",
-                        buffer   = "[Buf]",
-                        path     = "[Path]",
-                    }
                     item.kind = (kind_icons[item.kind] or "") .. " " .. (item.kind or "")
                     item.menu = menu_icon[entry.source.name] or ""
                     return item
