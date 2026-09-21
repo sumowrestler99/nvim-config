@@ -1,10 +1,29 @@
+-- Optional machine-local overrides (provider, ACP backend). Empty table when
+-- lua/local/avante.lua does not exist.
+local extra = require('core.local').get('avante')
+
 return {
     "yetone/avante.nvim",
+    enabled = true, -- Re-enabled
     event   = "VeryLazy",
     version = false, -- Never set this value to "*"! Never!
-    build   = vim.fn.has("win32") ~= 0
-        and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
-        or  "make",
+    -- Native Rust libs (avante_tokenizers/templates/repo_map/html2md).
+    -- On Unix `make` shells out to `cargo`, which is not installed everywhere.
+    -- Rather than letting every :Lazy update fail, skip the build when cargo is
+    -- missing: the already-compiled .so files in lua/ stay API-compatible
+    -- (crate changes since they were built are dependency bumps only).
+    -- To enable native rebuilds:  install cargo, then  :Lazy build avante.nvim
+    build   = (function()
+        if vim.fn.has("win32") ~= 0 then
+            -- Windows path downloads prebuilt binaries, so it needs no toolchain.
+            return "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
+        end
+        if vim.fn.executable("cargo") == 0 then
+            return false
+        end
+        return "make"
+    end)(),
+
 
     dependencies = {
         "stevearc/dressing.nvim",
@@ -26,10 +45,17 @@ return {
     opts = {
         mode = "agentic", -- "agentic" | "legacy"
 
-        provider = "gemini",
+        -- A machine-local module may point avante at a different backend (for
+        -- example a corp-only CLI exposed over ACP). Without one, fall back to
+        -- the public API-key provider configured below.
+        provider      = extra.provider or "gemini",
+        acp_providers = extra.acp_providers,
 
         providers = {
+            -- Used unless a machine-local module overrides `provider` above.
+            -- Requires GEMINI_API_KEY in the environment.
             gemini = {
+                -- @see https://ai.google.dev/gemini-api/docs/models/gemini
                 model       = "gemini-2.5-flash",
                 temperature = 0,
                 max_tokens  = 8192,
