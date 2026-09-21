@@ -1,3 +1,7 @@
+-- Byte-compilation cache for Lua modules. Must run before anything is
+-- require()d, including lazy.nvim's bootstrap, or those loads miss the cache.
+vim.loader.enable()
+
 -- Set leader keys before lazy.nvim so all plugin keymaps bind correctly
 vim.g.mapleader      = "\\"  -- <leader>  = backslash (default)
 vim.g.maplocalleader = "\\"  -- <localleader> = backslash
@@ -68,6 +72,23 @@ require('lazy').setup({
     spec = spec,
     ui = { border = "rounded" },
     checker = { enabled = false, concurrency = 1, frequency = 86400 }, --automatically check for plugin updates
+    performance = {
+        rtp = {
+            -- Bundled plugins this config never reaches for. Deliberately kept:
+            -- matchit/matchparen (bracket matching), man (:Man and K on sh),
+            -- editorconfig, osc52, shada, rplugin, spellfile.
+            disabled_plugins = {
+                "gzip",          -- browsing .gz archives in a buffer
+                "tarPlugin",     -- browsing .tar archives in a buffer
+                "zipPlugin",     -- browsing .zip archives in a buffer
+                "tutor",         -- :Tutor
+                -- neo-tree is the file explorer and nvim's built-in gx handles
+                -- URLs. Fugitive's :GBrowse runtime!s autoload/netrw.vim itself
+                -- (unaffected by this) and otherwise falls back to vim.ui.open.
+                "netrwPlugin",
+            },
+        },
+    },
     -- lazy can generate helptags from the headings in markdown readme files,
     -- so :help works even for plugins that don't have vim docs.
     -- when the readme opens with :help it will be correctly displayed as markdown
