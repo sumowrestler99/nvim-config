@@ -49,9 +49,6 @@ require("core.autocmds")() -- Call the function returned by autocmds.lua
 -- Load your custom keymaps
 require("core.keymaps")
 
--- Built-in nvim 0.12 undotree: inject lua path before lazy's loader intercepts
-package.path = package.path .. ";" .. vim.env.VIMRUNTIME .. "/pack/dist/opt/nvim.undotree/lua/?.lua"
-
 -- Public plugin specs, plus any machine-local ones from the gitignored
 -- lua/local/plugins/ directory.
 local spec = { { import = "plugins" } }

@@ -15,8 +15,20 @@ map('n', '[d',       function() vim.diagnostic.jump({ count = -1 }) end, { norem
 map('n', ']d',       function() vim.diagnostic.jump({ count =  1 }) end, { noremap = true, silent = true, desc = "Next diagnostic" })
 map('n', '<space>q', vim.diagnostic.setloclist,  { noremap = true, silent = true, desc = "Diagnostic loclist" })
 
--- Undotree (built-in nvim 0.12 pack)
-map("n", "<leader>ut", function() require("undotree").open({ command = "rightbelow 30vnew" }) end, { noremap = true, silent = true, desc = "Toggle undotree" })
+-- Undotree, from the 'dist' pack that Neovim 0.12 ships opt-in.
+--
+-- `packadd` rather than appending the pack's lua/ directory to package.path:
+-- the hand-rolled path only made `require('undotree')` resolve and never
+-- sourced the pack's plugin/ file, so the :Undotree command it defines did
+-- not exist. packadd puts the whole pack on 'runtimepath'.
+--
+-- Deferred to first keypress so nothing is sourced at startup, and the pack
+-- guards itself with vim.g.loaded_undotree_plugin, so pressing it again is a
+-- no-op.
+map("n", "<leader>ut", function()
+    vim.cmd.packadd("nvim.undotree")
+    require("undotree").open({ command = "rightbelow 30vnew" })
+end, { noremap = true, silent = true, desc = "Toggle undotree" })
 
 -- Paste image from clipboard (img-clip)
 map({ "n", "i" }, "<leader>pi", "<cmd>PasteImage<cr>", { noremap = true, silent = true, desc = "Paste image" })
