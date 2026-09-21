@@ -22,17 +22,6 @@ vim.filetype.add({
   },
 })
 
--- Compatibility hook for Neovim v0.11+ / v0.12+ treesitter get_node_text breaking change
--- In newer Neovim versions, a matched query capture can return a list of nodes (TSNode[])
--- instead of a single TSNode. Old plugins (like nvim-treesitter master branch) still
--- expect a single TSNode. This shim automatically unpacks lists to prevent crashes.
-local original_get_node_text = vim.treesitter.get_node_text
-vim.treesitter.get_node_text = function(node, source, opts)
-  if type(node) == "table" and node[1] and not node.range then
-    node = node[1]
-  end
-  return original_get_node_text(node, source, opts)
-end
 -- This file can be loaded by calling `lua require('plugins')` from your init.vim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
