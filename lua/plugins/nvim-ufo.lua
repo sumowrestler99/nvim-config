@@ -27,6 +27,7 @@ end
 
 return {
     'kevinhwang91/nvim-ufo',
+    enabled = true, -- Re-enabled
     event        = "BufReadPost",
     dependencies = "kevinhwang91/promise-async",
     config = function()

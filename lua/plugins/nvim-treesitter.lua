@@ -1,5 +1,6 @@
 return {
     'nvim-treesitter/nvim-treesitter',
+    enabled = true, -- Re-enabled
     build = ':TSUpdate',
     dependencies = {
         "smartpde/tree-sitter-cpp-google",
@@ -27,10 +28,10 @@ return {
             ignore_install   = { "javascript" },
             highlight = {
                 enable = true,
-                -- Disable for files over 100 KB to avoid slowdowns
+                -- Disable for files over 500 KB to avoid slowdowns
                 disable = function(_, buf)
                     local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
-                    if ok and stats and stats.size > 100 * 1024 then
+                    if ok and stats and stats.size > 500 * 1024 then
                         return true
                     end
                 end,

@@ -7,17 +7,17 @@ return {
         opts = {
             bigfile   = { enabled = true },
             indent    = {
-            enabled = true,
-            animate = {
-                enabled  = true,
-                style    = "up_down",
-                easing   = "linear",
-                duration = {
-                    step  = 20,
-                    total = 500,
+                enabled = true,
+                animate = {
+                    enabled  = true,
+                    style    = "up_down",
+                    easing   = "linear",
+                    duration = {
+                        step  = 20,
+                        total = 500,
+                    },
                 },
             },
-        },
             picker    = { enabled = true },
             quickfile = { enabled = true },
             scroll    = { enabled = true },

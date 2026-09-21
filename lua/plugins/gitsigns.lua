@@ -1,6 +1,6 @@
-
 return {
   'lewis6991/gitsigns.nvim',
+    enabled = true, -- Re-enabled
     -- Load gitsigns after a buffer is read from disk.
     -- This means it only activates when you open a file, not for empty scratch buffers, etc.
     event = "BufReadPost",
@@ -35,7 +35,7 @@ return {
       sign_priority = 6,
       update_debounce = 100,
       status_formatter = nil, -- Use default
-      max_file_length = 40000, -- Disable if file is longer than this (in lines)
+      max_file_length = 5000, -- Disable if file is longer than this (in lines)
       preview_config = {
         -- Options passed to nvim_open_win
         border = 'rounded',

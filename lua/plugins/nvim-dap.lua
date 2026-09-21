@@ -24,6 +24,7 @@ return {
       local dap     = require("dap")
       local dapui   = require("dapui")
 
+      dap.set_log_level('TRACE')
       dap.defaults.fallback.timeout_sec = 30
 
       -- Gutter signs

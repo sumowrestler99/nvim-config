@@ -3,7 +3,11 @@ vim.g.mapleader      = "\\"  -- <leader>  = backslash (default)
 vim.g.maplocalleader = "\\"  -- <localleader> = backslash
 
 -- Treat .vscode/*.json files as jsonc (JSON with Comments) so LSPs/linters don't flag comments as errors
+-- Treat .cint files as C
 vim.filetype.add({
+  extension = {
+    cint = 'c',
+  },
   filename = {
     ['launch.json'] = 'jsonc',
     ['tasks.json'] = 'jsonc',
