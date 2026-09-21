@@ -72,8 +72,14 @@ return {
         vim.keymap.set({ "n", "x", "o" }, "[[", function() move.goto_previous_start("@class.outer",    "textobjects") end)
 
         -- textobjects: swap
+        --
+        -- <leader>s rather than <leader>a: avante defines fifteen <leader>a?
+        -- mappings, so a bare <leader>a was a prefix of all of them and every
+        -- swap waited out 'timeoutlen' (500 ms) first.
         local swap = require("nvim-treesitter-textobjects.swap")
-        vim.keymap.set("n", "<leader>a", function() swap.swap_next("@parameter.inner")     end)
-        vim.keymap.set("n", "<leader>A", function() swap.swap_previous("@parameter.inner") end)
+        vim.keymap.set("n", "<leader>sa", function() swap.swap_next("@parameter.inner")     end,
+            { desc = "Swap parameter next" })
+        vim.keymap.set("n", "<leader>sA", function() swap.swap_previous("@parameter.inner") end,
+            { desc = "Swap parameter previous" })
     end,
 }

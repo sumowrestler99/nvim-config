@@ -9,7 +9,10 @@ return {
     "MunifTanjim/nui.nvim",
   },
   keys = {
-    { "<leader>e",  "<cmd>Neotree toggle<cr>",           desc = "Toggle file tree" },
+    -- <leader>ee rather than <leader>e: a bare <leader>e would be a prefix of
+    -- ef/eg/eb below, so every press waited out 'timeoutlen' (500 ms) before
+    -- the tree appeared.
+    { "<leader>ee", "<cmd>Neotree toggle<cr>",           desc = "Toggle file tree" },
     { "<leader>ef", "<cmd>Neotree reveal<cr>",           desc = "Reveal file in tree" },
     { "<leader>eg", "<cmd>Neotree float git_status<cr>", desc = "Git status (float)" },
     { "<leader>eb", "<cmd>Neotree toggle buffers<cr>",   desc = "Toggle buffer list" },

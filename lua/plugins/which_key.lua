@@ -59,10 +59,17 @@ return {
 
       { "<leader>w",  desc = "Save file",        icon = { icon = "󰆓", color = "blue"   } },
 
-      { "<leader>e",  desc = "Toggle file tree",        icon = { icon = "󰙅", color = "green"  } },
-      { "<leader>ef", desc = "Reveal file in tree",     icon = { icon = "󰈞", color = "green"  } },
-      { "<leader>eg", desc = "Git status (float)",      icon = { icon = "󰊢", color = "orange" } },
-      { "<leader>eb", desc = "Toggle buffer list",      icon = { icon = "󰓩", color = "blue"   } },
+      { "<leader>e",  group = "Explorer",              icon = { icon = "󰙅", color = "green"  } },
+      { "<leader>ee", desc = "Toggle file tree",       icon = { icon = "󰙅", color = "green"  } },
+      { "<leader>ef", desc = "Reveal file in tree",    icon = { icon = "󰈞", color = "green"  } },
+      { "<leader>eg", desc = "Git status (float)",     icon = { icon = "󰊢", color = "orange" } },
+      { "<leader>eb", desc = "Toggle buffer list",     icon = { icon = "󰓩", color = "blue"   } },
+
+      -- Treesitter swap. Moved off <leader>a, which collides with avante's
+      -- fifteen <leader>a? mappings.
+      { "<leader>s",  group = "Swap (treesitter)",     icon = { icon = "󰓡", color = "purple" } },
+      { "<leader>sa", desc = "Swap parameter next",    icon = { icon = "󰓡", color = "purple" } },
+      { "<leader>sA", desc = "Swap parameter previous", icon = { icon = "󰓡", color = "purple" } },
 
       { "<leader>pi", desc = "Paste image",             icon = { icon = "󰋩", color = "cyan"   } },
 
