@@ -127,6 +127,31 @@ return {
             vim.lsp.enable('sourcekit')
         end
 
+        -- lua_ls: point the workspace library at THIS nvim's runtime.
+        --
+        -- This used to live in .luarc.json as a hardcoded
+        -- /opt/homebrew/Cellar/neovim/0.12.1/... path. That directory does not
+        -- exist here, so lua_ls had no Neovim definitions loaded at all and
+        -- silently reported no diagnostics for misspelled `vim.*` calls or
+        -- highlight groups. Deriving it from $VIMRUNTIME keeps the committed
+        -- config machine-independent.
+        --
+        -- .luarc.json still wins for the keys it declares (runtime.version,
+        -- diagnostics.globals, workspace.checkThirdParty); it deliberately no
+        -- longer declares workspace.library so this takes effect.
+        vim.lsp.config('lua_ls', {
+            settings = {
+                Lua = {
+                    workspace = {
+                        library = {
+                            vim.env.VIMRUNTIME .. '/lua',
+                            vim.fn.stdpath('data') .. '/lazy/lazy.nvim/lua',
+                        },
+                    },
+                },
+            },
+        })
+
         -- SchemaStore's catalog costs ~6 ms to parse, and this spec loads for
         -- any of 32 filetypes -- so opening a .lua file was paying for it.
         -- Build it in before_init, i.e. only once the server actually starts.
