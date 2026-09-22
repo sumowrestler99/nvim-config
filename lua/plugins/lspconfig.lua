@@ -177,16 +177,17 @@ return {
             extra.setup()
         end
 
-        -- Visual range format
-        local function format_range()
-            vim.lsp.buf.format({
-                async = true,
-                range = {
-                    ["start"] = vim.api.nvim_buf_get_mark(0, "<"),
-                    ["end"]   = vim.api.nvim_buf_get_mark(0, ">"),
-                },
-            })
-        end
-        vim.keymap.set("v", "\\qf", format_range, { noremap = true, desc = "LSP range format" })
+        -- Visual range format.
+        --
+        -- Do NOT build the range from nvim_buf_get_mark(0, "<"/">"): those marks
+        -- are only written when Visual mode is LEFT, so a mapping invoked from
+        -- Visual mode reads the *previous* selection. vim.lsp.buf.format already
+        -- handles this: when no range is passed and the mode is v/V it calls
+        -- range_from_selection() against the live selection
+        -- (runtime/lua/vim/lsp/buf.lua:617-620) and switches the request to
+        -- textDocument/rangeFormatting.
+        vim.keymap.set("v", "\\qf", function()
+            vim.lsp.buf.format({ async = true })
+        end, { noremap = true, desc = "LSP range format" })
     end,
 }
