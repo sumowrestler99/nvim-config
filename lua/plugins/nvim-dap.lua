@@ -27,7 +27,9 @@ return {
       -- TRACE writes every DAP protocol message to dap.log. Raise it back
       -- temporarily when diagnosing an adapter that will not attach.
       dap.set_log_level('WARN')
-      dap.defaults.fallback.timeout_sec = 30
+      -- NOTE: there is no `dap.defaults.fallback.timeout_sec`. The adapter
+      -- initialize timeout is per-adapter, under `options`, see dap.Adapter.options
+      -- in dap.lua:202-206. It is set on each adapter below.
 
       -- Gutter signs
       vim.fn.sign_define("DapBreakpoint",          { text = "●", texthl = "DapBreakpoint",         linehl = "", numhl = "" })
@@ -69,6 +71,9 @@ return {
         executable = {
           command = vim.fn.stdpath("data") .. "/mason/bin/codelldb",
           args    = { "--port", "${port}" },
+        },
+        options = {
+          initialize_timeout_sec = 30,
         },
       }
 
@@ -120,6 +125,9 @@ return {
         type    = "executable",
         command = vim.fn.stdpath("data") .. "/mason/packages/debugpy/venv/bin/python",
         args    = { "-m", "debugpy.adapter" },
+        options = {
+          initialize_timeout_sec = 30,
+        },
       }
 
       dap.configurations.python = {
@@ -153,6 +161,9 @@ return {
       dap.adapters.bashdb = {
         type    = "executable",
         command = vim.fn.stdpath("data") .. "/mason/bin/bash-debug-adapter",
+        options = {
+          initialize_timeout_sec = 30,
+        },
       }
 
       local is_mac = vim.fn.has("mac") == 1
