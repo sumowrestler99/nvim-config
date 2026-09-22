@@ -141,21 +141,28 @@ return {
         vim.lsp.config('jsonls', {
             settings = {},
             before_init = function(_, config)
-                config.settings.json = {
+                config.settings.json = vim.tbl_deep_extend('force', config.settings.json or {}, {
                     schemas  = require('schemastore').json.schemas(),
                     validate = { enable = true },
-                }
+                })
             end,
         })
 
         -- yamlls: schema-aware YAML via SchemaStore
+        --
+        -- Merge rather than assign. nvim-lspconfig's lsp/yamlls.lua already
+        -- ships `settings.yaml = { format = { enable = true } }` because
+        -- yaml-language-server disables formatting by default, and its on_init
+        -- forces `documentFormattingProvider = true` on top. Replacing the
+        -- table dropped format.enable, leaving a server that claims to format
+        -- and then does nothing.
         vim.lsp.config('yamlls', {
             settings = {},
             before_init = function(_, config)
-                config.settings.yaml = {
+                config.settings.yaml = vim.tbl_deep_extend('force', config.settings.yaml or {}, {
                     schemaStore = { enable = false, url = "" },
                     schemas     = require('schemastore').yaml.schemas(),
-                }
+                })
             end,
         })
 
