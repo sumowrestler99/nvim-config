@@ -1,5 +1,7 @@
 local function set_diagnostic_highlights()
-    vim.api.nvim_set_hl(0, 'DiagnosticUnderlineWarning', { undercurl = true, sp = '#ffff00' })
+    -- The group is DiagnosticUnderlineWarn, not ...Warning. nvim_set_hl happily
+    -- creates the misspelled group, it just never gets linked to anything.
+    vim.api.nvim_set_hl(0, 'DiagnosticUnderlineWarn',    { undercurl = true, sp = '#ffff00' })
     vim.api.nvim_set_hl(0, 'DiagnosticUnderlineError',   { undercurl = true, sp = 'Red'     })
     vim.api.nvim_set_hl(0, 'DiagnosticUnderlineInfo',    { undercurl = true, sp = 'White'   })
     vim.api.nvim_set_hl(0, 'DiagnosticUnderlineHint',    { undercurl = true, sp = 'Blue'    })
