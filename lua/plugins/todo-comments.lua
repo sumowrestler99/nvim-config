@@ -3,7 +3,11 @@ return {
     dependencies = "nvim-lua/plenary.nvim",
     event = "BufReadPost",
     keys = {
-        { "<leader>ft", "<cmd>TodoSnacks<cr>", desc = "Todo comments" },
+        -- todo-comments ships no :TodoSnacks command. Its plugin/todo.vim only
+        -- defines TodoQuickFix/TodoLocList/TodoTelescope/TodoFzfLua/TodoTrouble.
+        -- Snacks integration is registered from todo-comments' own setup(), as
+        -- `Snacks.picker.sources.todo_comments`, so call the picker directly.
+        { "<leader>ft", function() Snacks.picker.todo_comments() end, desc = "Todo comments" },
         { "]t", function() require("todo-comments").jump_next() end, desc = "Next todo" },
         { "[t", function() require("todo-comments").jump_prev() end, desc = "Prev todo" },
     },
