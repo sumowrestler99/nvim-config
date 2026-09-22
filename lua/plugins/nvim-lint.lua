@@ -4,9 +4,25 @@ return {
   config = function()
     local lint = require("lint")
 
-    lint.linters_by_ft = {
-      make = { "checkmake" },
-    }
+    -- The bundled linter spec is `cmd = "checkmake"` (lint/linters/checkmake.lua),
+    -- i.e. a bare $PATH lookup. Mason installs the binary but only prepends its
+    -- bin/ to $PATH from mason.setup() (mason/init.lua:25), and mason.nvim is
+    -- lazy-loaded on cmd/keys -- so on `nvim Makefile` the FileType event fires
+    -- during startup, before mason has ever loaded, and the lookup fails.
+    -- Pin the absolute path instead, and skip registering the linter entirely
+    -- if it is not installed rather than erroring on every Makefile write.
+    local mason_checkmake = vim.fn.stdpath("data") .. "/mason/bin/checkmake"
+    local have_checkmake = vim.fn.executable(mason_checkmake) == 1
+    if have_checkmake then
+      lint.linters.checkmake.cmd = mason_checkmake
+    else
+      have_checkmake = vim.fn.executable("checkmake") == 1
+    end
+
+    lint.linters_by_ft = {}
+    if have_checkmake then
+      lint.linters_by_ft.make = { "checkmake" }
+    end
 
     -- `pattern` matches file names rather than filetypes, so the guard has to
     -- live in the callback. Without it this autocmd is global: once nvim-lint
