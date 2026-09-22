@@ -35,7 +35,11 @@ return {
         },
         select = {
             enabled  = true,
-            backend  = { "snacks", "telescope", "builtin" },
+            -- Backends are resolved with `require("dressing.select." .. name)`
+            -- (dressing/select/init.lua:16-20). The shipped module is
+            -- snacks_picker.lua, so "snacks" never resolved and this silently
+            -- fell through to telescope.
+            backend  = { "snacks_picker", "telescope", "builtin" },
             builtin  = {
                 border       = "rounded",
                 min_height   = 1,
