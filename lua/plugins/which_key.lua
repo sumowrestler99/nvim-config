@@ -19,11 +19,16 @@ return {
       { "K",     desc = "LSP Hover",             icon = { icon = "󰋖", color = "cyan"   } },
       { "<C-k>", desc = "LSP Signature Help",    icon = { icon = "󰊕", color = "cyan"   } },
 
-      -- Treesitter incremental selection
+      -- Treesitter incremental selection.
+      --
+      -- grn/grc/grm are set in visual mode only (nvim-treesitter.lua), and
+      -- normal-mode grn is Neovim's built-in LSP rename. Without an explicit
+      -- mode these entries registered in normal mode and mislabelled it.
       { "gnn", desc = "TS Init selection" },
-      { "grn", desc = "TS Increment node" },
-      { "grc", desc = "TS Increment scope" },
-      { "grm", desc = "TS Decrement node" },
+      { "grn", desc = "LSP Rename", icon = { icon = "󰑕", color = "blue" } },
+      { "grn", mode = "x", desc = "TS Increment node" },
+      { "grc", mode = "x", desc = "TS Increment scope" },
+      { "grm", mode = "x", desc = "TS Decrement node" },
 
       -- Treesitter textobjects: select (visual + operator-pending)
       { "af", mode = { "x", "o" }, desc = "TS Around function" },
