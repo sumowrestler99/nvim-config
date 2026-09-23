@@ -10,9 +10,14 @@ map("i", "jk", "<ESC>", { noremap = true, silent = true, desc = "Exit Insert Mod
 map("n", "<leader>w", "<cmd>w<cr>", { noremap = true, desc = "Save Current Buffer" })
 
 -- Diagnostic keymaps (global, always available)
+--
+-- [d and ]d are deliberately absent: Neovim 0.12 already defines them
+-- (runtime/lua/vim/_core/defaults.lua, :h ]d-default) and the built-ins pass
+-- vim.v.count1, which the hand-rolled versions here did not -- 3]d jumped a
+-- single diagnostic. Everything else about them was byte-for-byte identical,
+-- so deleting them is a pure gain. ]D / [D / <C-W>d come free with the
+-- built-ins too.
 map('n', '<space>e', vim.diagnostic.open_float,  { noremap = true, silent = true, desc = "Diagnostic float" })
-map('n', '[d',       function() vim.diagnostic.jump({ count = -1 }) end, { noremap = true, silent = true, desc = "Prev diagnostic" })
-map('n', ']d',       function() vim.diagnostic.jump({ count =  1 }) end, { noremap = true, silent = true, desc = "Next diagnostic" })
 map('n', '<space>q', vim.diagnostic.setloclist,  { noremap = true, silent = true, desc = "Diagnostic loclist" })
 
 -- Undotree, from the 'dist' pack that Neovim 0.12 ships opt-in.
