@@ -50,10 +50,6 @@ return {
       { "]]", mode = { "n", "x", "o" }, desc = "TS Next class start" },
       { "[[", mode = { "n", "x", "o" }, desc = "TS Prev class start" },
 
-      -- Treesitter textobjects: swap
-      { "<leader>a", desc = "TS Swap next parameter" },
-      { "<leader>A", desc = "TS Swap prev parameter" },
-
       -- Diagnostic navigation
       { "[d", desc = "Prev Diagnostic", icon = { icon = "󰒕", color = "yellow" } },
       { "]d", desc = "Next Diagnostic", icon = { icon = "󰒕", color = "yellow" } },
