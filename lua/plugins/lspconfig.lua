@@ -70,7 +70,12 @@ return {
                 vim.keymap.set('n', '<space>D',   vim.lsp.buf.type_definition,bufopts)
                 vim.keymap.set('n', '<space>rn',  vim.lsp.buf.rename,         bufopts)
                 vim.keymap.set('n', '<space>ca',  vim.lsp.buf.code_action,    bufopts)
-                vim.keymap.set('n', 'gr',         vim.lsp.buf.references,     bufopts)
+                -- No `gr` mapping here on purpose. Neovim 0.12 binds six built-in
+                -- LSP maps under that prefix -- grn gra grx grr gri grt, see
+                -- :h lsp-defaults -- and a bare `gr` makes every one of them wait
+                -- out 'timeoutlen' (500 ms) in every LSP buffer. `grr` is already
+                -- vim.lsp.buf.references, so the mapping was redundant as well as
+                -- costly.
                 vim.keymap.set('n', '<space>f',   function()
                     vim.lsp.buf.format { async = true }
                 end, bufopts)
