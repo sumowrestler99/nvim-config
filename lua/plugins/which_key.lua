@@ -50,6 +50,11 @@ return {
       { "]]", mode = { "n", "x", "o" }, desc = "TS Next class start" },
       { "[[", mode = { "n", "x", "o" }, desc = "TS Prev class start" },
 
+      -- Commenting. Built into Neovim 0.12 (runtime/lua/vim/_comment.lua);
+      -- nerdcommenter was removed in favour of it.
+      { "gc",  mode = { "n", "x" }, desc = "Comment toggle (operator)" },
+      { "gcc", desc = "Comment toggle line" },
+
       -- Diagnostic navigation
       { "[d", desc = "Prev Diagnostic", icon = { icon = "󰒕", color = "yellow" } },
       { "]d", desc = "Next Diagnostic", icon = { icon = "󰒕", color = "yellow" } },

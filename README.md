@@ -437,7 +437,6 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 
 | Plugin | Purpose |
 |--------|---------|
-| [nerdcommenter](https://github.com/preservim/nerdcommenter) | Comment/uncomment code |
 | [neogen](https://github.com/danymat/neogen) | Generate docstring annotations (`<leader>nf`) |
 | [doxygentoolkit](https://github.com/vim-scripts/DoxygenToolkit.vim) | Doxygen comment generation |
 | [todo-comments.nvim](https://github.com/folke/todo-comments.nvim) | Highlight and navigate TODO/FIXME/HACK/NOTE/WARN/PERF/TEST comments |
