@@ -4,7 +4,49 @@ local extra = require('core.local').get('avante')
 
 return {
     "yetone/avante.nvim",
-    event   = "VeryLazy",
+    -- Entry points, NOT `event = "VeryLazy"`.
+    --
+    -- lazy.nvim loads *and configures* a plugin's `dependencies` unconditionally
+    -- when the parent loads, ignoring each dependency's own trigger
+    -- (lazy/core/loader.lua:352-356). With avante on VeryLazy that dragged
+    -- nvim-cmp (`event = "InsertEnter"`), dressing.nvim (`lazy = true`) and
+    -- render-markdown (`ft`) into startup with it, costing ~35 ms for a
+    -- sidebar that may never be opened.
+    --
+    -- The commands come from avante's plugin/avante.lua, which is sourced by
+    -- packadd when the plugin loads.
+    cmd = {
+        "AvanteAsk", "AvanteChat", "AvanteChatNew", "AvanteToggle", "AvanteEdit",
+        "AvanteRefresh", "AvanteFocus", "AvanteStop", "AvanteClear", "AvanteHistory",
+        "AvanteModels", "AvanteShowRepoMap", "AvanteBuild",
+        "AvanteSwitchProvider", "AvanteSwitchSelectorProvider", "AvanteSwitchInputProvider",
+        "AvanteACPModels", "AvanteACPModes",
+    },
+    -- These mirror avante's own defaults (avante/config.lua:755-768), but the
+    -- <Plug> targets MUST be spelled out rather than left as bare lhs stubs.
+    --
+    -- avante sets its keymaps through Utils.safe_keymap_set, which drops any
+    -- mode where lazy's keys handler reports `Keys:have(lhs, mode)`
+    -- (avante/utils/init.lua:243). That reads `self.managed`, which still holds
+    -- the entry after the stub has deleted itself -- so avante would decline to
+    -- install the real mapping, and lazy's `_set` creates nothing for a spec
+    -- entry with no rhs. The key would be dead after its first press.
+    --
+    -- Naming the <Plug> target hands ownership to lazy, which is precisely what
+    -- safe_keymap_set is written to defer to. `remap = true` is required:
+    -- <Plug> mappings are not resolved under noremap.
+    keys = {
+        { "<leader>aa", "<Plug>(AvanteAsk)",              mode = { "n", "v" }, remap = true, desc = "avante: ask" },
+        { "<leader>an", "<Plug>(AvanteAskNew)",           mode = { "n", "v" }, remap = true, desc = "avante: new ask" },
+        { "<leader>az", "<Plug>(AvanteZenMode)",          mode = { "n", "v" }, remap = true, desc = "avante: zen mode" },
+        { "<leader>ae", "<Plug>(AvanteEdit)",             mode = "v",          remap = true, desc = "avante: edit" },
+        { "<leader>ar", "<Plug>(AvanteRefresh)",          mode = "n",          remap = true, desc = "avante: refresh" },
+        { "<leader>af", "<Plug>(AvanteFocus)",            mode = "n",          remap = true, desc = "avante: focus" },
+        { "<leader>aS", "<Plug>(AvanteStop)",             mode = "n",          remap = true, desc = "avante: stop" },
+        { "<leader>at", "<Plug>(AvanteToggle)",           mode = "n",          remap = true, desc = "avante: toggle" },
+        { "<leader>ad", "<Plug>(AvanteToggleDebug)",      mode = "n",          remap = true, desc = "avante: toggle debug" },
+        { "<leader>aC", "<Plug>(AvanteToggleSelection)",  mode = "n",          remap = true, desc = "avante: toggle selection" },
+    },
     version = false, -- Never set this value to "*"! Never!
     -- Native Rust libs (avante_tokenizers/templates/repo_map/html2md).
     -- On Unix `make` shells out to `cargo`, which is not installed everywhere.
