@@ -5,6 +5,13 @@ return {
       "rcarriga/nvim-dap-ui",
       "nvim-neotest/nvim-nio",
       "theHamsta/nvim-dap-virtual-text",
+      -- Adapter installation. Declared here, rather than mason-nvim-dap
+      -- carrying `event = "VeryLazy"`, so that the DAP stack loads on the keys
+      -- below instead of at startup. mason-nvim-dap also lists nvim-dap as a
+      -- dependency; that cycle is safe because lazy.nvim sets
+      -- `plugin._.loaded = {}` before walking dependencies
+      -- (lazy/core/loader.lua:329), so the back-edge short-circuits.
+      "jay-babu/mason-nvim-dap.nvim",
     },
     keys = {
       { "<leader>db", function() require("dap").toggle_breakpoint() end,                                desc = "Toggle breakpoint" },
