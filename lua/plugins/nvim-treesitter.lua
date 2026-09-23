@@ -196,21 +196,30 @@ return {
             end,
         })
 
-        -- Replacement for master's `ensure_installed`. install() is a no-op for
-        -- parsers that are already present, so this is cheap on every start.
+        -- Replacement for master's `ensure_installed` and `highlight`/`auto_install`.
+        --
+        -- Both sets are needed below, so build them once.
         local available = {}
         for _, lang in ipairs(ts.get_available()) do
             available[lang] = true
         end
-        local want = vim.tbl_filter(function(lang) return available[lang] end, ensure_installed)
-        if #want > 0 then
-            ts.install(want)
-        end
-
-        -- Replacement for master's `highlight` module and `auto_install`.
         local installed = {}
         for _, lang in ipairs(ts.get_installed('parsers')) do
             installed[lang] = true
+        end
+
+        -- Only install what is genuinely missing.
+        --
+        -- `install()` is NOT a cheap no-op for already-present parsers: it
+        -- skips the download, but it first calls reload_parsers(), which nils
+        -- and re-parses the 2,346-line parsers.lua and re-fires `User TSUpdate`
+        -- -- repeating the work get_available() above has already done. In the
+        -- steady state nothing is missing, so the call is skipped entirely.
+        local missing = vim.tbl_filter(function(lang)
+            return available[lang] and not installed[lang]
+        end, ensure_installed)
+        if #missing > 0 then
+            ts.install(missing)
         end
 
         ---@param buf integer
