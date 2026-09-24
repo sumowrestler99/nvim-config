@@ -20,7 +20,7 @@ A full-featured, opinionated Neovim 0.12+ configuration built for C/C++, Swift, 
 - **Annotation generation** — Neogen generates docstrings/doxygen comments (`<leader>nf`)
 - **Todo tracking** — todo-comments.nvim highlights and navigates TODO/FIXME/NOTE/HACK/WARN across the codebase
 - **Terminal** — toggleterm floating terminal (`<C-\>`)
-- **Remote file editing** — netrw re-enabled for `scp://host/path` style remote files alongside neo-tree
+- **Remote file editing** — netrw is left enabled for `scp://host/path` style remote files alongside neo-tree
 - **Animated cursor** — smear-cursor.nvim animates cursor movement with a smear trail
 - **Clean mode** — single keymap (`<leader>ul`) toggles all layout guides off/on (indent lines, git signs, fold column, inlay hints, diagnostic virtual text, color column)
 - **jsonc support** — `.vscode/*.json` files (launch.json, tasks.json) treated as JSON with Comments; LSP loads correctly for them
@@ -36,7 +36,7 @@ A full-featured, opinionated Neovim 0.12+ configuration built for C/C++, Swift, 
 - `GEMINI_API_KEY` is set in your shell environment for Avante AI features
 - Tab width is **4 spaces** by default; toggle to 2 with `<F4>`
 - The **leader key** is `\` (backslash)
-- All plugins load **lazily** — most have zero startup cost and only load on first use
+- Plugins load **lazily** except catppuccin, snacks.nvim and barbecue.nvim — the rest have zero startup cost and only load on first use
 - Plugin versions are **pinned** via `lazy-lock.json` for reproducible installs
 
 ---
@@ -60,7 +60,9 @@ On first launch:
 1. lazy.nvim bootstraps itself and downloads all plugins
 2. Treesitter parsers are built (`:TSUpdate` runs automatically). This needs the `tree-sitter` CLI
    (0.26.1 or later) and a C compiler on `$PATH`
-3. Mason auto-installs LSP servers (`clangd`, `lua_ls`, `bashls`, `pyright`, `marksman`, `jsonls`, `yamlls`) and tools (`codelldb`, `cpptools`, `debugpy`, `bash-debug-adapter`, `checkmake`)
+3. Mason auto-installs LSP servers (`clangd`, `lua_ls`, `bashls`, `pyright`, `marksman`, `jsonls`, `yamlls`) the first time a
+   supported file is opened, and debug adapters (`codelldb`, `cpptools`, `debugpy`, `bash-debug-adapter`) the first
+   time a debug key is used. `checkmake` is not auto-installed (`:MasonInstall checkmake`)
 4. Restart nvim once everything finishes installing
 
 **Set your Gemini API key** (required for Avante AI features):
@@ -77,6 +79,7 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 - Neovim 0.12+
 - A [Nerd Font](https://www.nerdfonts.com/) (icons throughout UI) — [Iosevka Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Iosevka) recommended
 - `git`, `curl`, `make`, `clang` or `gcc`
+- `tree-sitter` CLI 0.26.1+ (builds Treesitter parsers)
 - `GEMINI_API_KEY` environment variable (for Avante AI assistant)
 
 ---
@@ -85,13 +88,14 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 
 ```
 ~/.config/nvim/
-├── init.lua                  # Entry point: loads core modules, lazy.nvim, built-in packs
+├── init.lua                  # Entry point: loads core modules and lazy.nvim
 ├── lua/
 │   ├── core/
 │   │   ├── options.lua       # Editor options, LSP diagnostics config
 │   │   ├── keymaps.lua       # Global keymaps
 │   │   ├── autocmds.lua      # Autocommands (yank, cursor restore, resize)
-│   │   └── globals.lua       # Global variables
+│   │   ├── globals.lua       # Global variables
+│   │   └── local.lua         # Optional loader for gitignored machine-local overrides
 │   └── plugins/              # One file per plugin, loaded via lazy.nvim
 └── .gitignore
 ```
@@ -126,14 +130,15 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 
 | Trigger | Effect |
 |---------|--------|
-| `BufReadPost` | Restore last cursor position in file |
-| `TextYankPost` | Flash highlight on yank + copy to clipboard via OSC52 |
+| `BufReadPost` | Restore last cursor position in file (not for git commit/rebase message buffers) |
+| `BufWritePre` (`/tmp/*`, `*.gpg`, `*.env`, `*/.ssh/*`, …) | Disable persistent undo for scratch/secret files |
+| `TextYankPost` | Flash highlight on yank + copy `y` yanks to clipboard via OSC52 |
 | `VimResized` | Auto-equalize split sizes on terminal resize |
 | `VimEnter` (directory arg) | Auto-open neo-tree when nvim is opened on a directory |
 | `ColorScheme` | Re-apply diagnostic underline highlights after theme changes |
 
 ### OSC52 Clipboard
-Yanking (`y`) automatically copies to the local clipboard via OSC52. This works over SSH without any terminal round-trip. Paste (`p`) uses nvim's internal register.
+Yanking (`y`) into the unnamed, `+` or `*` register automatically copies to the local clipboard via OSC52; deletes, changes and yanks replayed by a macro do not. This works over SSH without any terminal round-trip. Paste (`p`) uses nvim's internal register.
 
 ---
 
@@ -152,6 +157,7 @@ Yanking (`y`) automatically copies to the local clipboard via OSC52. This works 
 | Normal | `<leader>pi` | Paste image from clipboard (img-clip) |
 | Normal | `<leader>ut` | Toggle undotree (opens on right) |
 | Normal | `<leader>ul` | Toggle all layout guides (clean mode) |
+| Normal/Visual | `<leader>c<Space>` | Toggle comment (built-in `gcc`/`gc`) |
 
 ### Diagnostics
 
@@ -159,8 +165,8 @@ Yanking (`y`) automatically copies to the local clipboard via OSC52. This works 
 |------|-----|--------|
 | Normal | `<space>e` | Open diagnostic float |
 | Normal | `<space>q` | Send diagnostics to location list |
-| Normal | `[d` | Jump to previous diagnostic |
-| Normal | `]d` | Jump to next diagnostic |
+| Normal | `[d` | Jump to previous diagnostic (Neovim built-in) |
+| Normal | `]d` | Jump to next diagnostic (Neovim built-in) |
 
 ### LSP (active when LSP is attached)
 
@@ -169,7 +175,13 @@ Yanking (`y`) automatically copies to the local clipboard via OSC52. This works 
 | Normal | `gd` | Go to definition |
 | Normal | `gD` | Go to declaration |
 | Normal | `gi` | Go to implementation |
-| Normal | `gr` | Show references |
+| Normal | `grr` | Show references (built-in) |
+| Normal | `grn` | Rename symbol (built-in) |
+| Normal/Visual | `gra` | Code action (built-in) |
+| Normal | `gri` | Go to implementation (built-in) |
+| Normal | `grt` | Type definition (built-in) |
+| Normal | `grx` | Run codelens (built-in) |
+| Normal | `gO` | Document symbols (built-in) |
 | Normal | `K` | Hover documentation |
 | Normal | `<C-k>` | Signature help |
 | Normal | `<space>D` | Type definition |
@@ -185,7 +197,7 @@ Yanking (`y`) automatically copies to the local clipboard via OSC52. This works 
 
 | Key | Action |
 |-----|--------|
-| `<leader>e` | Toggle file tree |
+| `<leader>ee` | Toggle file tree |
 | `<leader>ef` | Reveal current file in tree |
 | `<leader>eg` | Git status (floating window) |
 | `<leader>eb` | Toggle buffer list |
@@ -198,9 +210,9 @@ Inside the tree: `l`/`h` open/close nodes, `v` open in vsplit, `s` open in split
 |------|-----|--------|
 | Normal | `]c` | Next hunk |
 | Normal | `[c` | Previous hunk |
-| Normal | `<leader>hs` | Stage hunk |
+| Normal | `<leader>hs` | Stage hunk (unstages if already staged) |
 | Normal | `<leader>hS` | Stage entire buffer |
-| Normal | `<leader>hu` | Undo stage hunk |
+| Normal | `<leader>hu` | Unstage hunk (same as `<leader>hs` on a staged hunk) |
 | Normal | `<leader>hU` | Unstage buffer |
 | Normal | `<leader>hr` | Reset hunk |
 | Normal | `<leader>hR` | Reset buffer |
@@ -268,10 +280,10 @@ In the 3-way merge view:
 
 | Key | Action |
 |-----|--------|
-| `gnn` | Start selection |
-| `grn` | Expand to next node |
-| `grc` | Expand to scope |
-| `grm` | Shrink selection |
+| `gnn` | Start selection (Normal) |
+| `grn` | Expand to next node (Visual; Normal `grn` is LSP rename) |
+| `grc` | Expand to scope (Visual) |
+| `grm` | Shrink selection (Visual) |
 
 ### Treesitter — Text Objects (Visual / Operator-pending)
 
@@ -298,8 +310,8 @@ In the 3-way merge view:
 
 | Key | Action |
 |-----|--------|
-| `<leader>a` | Swap with next parameter |
-| `<leader>A` | Swap with previous parameter |
+| `<leader>sa` | Swap with next parameter |
+| `<leader>sA` | Swap with previous parameter |
 
 ### Mason
 
@@ -356,9 +368,17 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 | Key | Action |
 |-----|--------|
 | `<leader>aa` | Ask Avante |
-| `<leader>ae` | Edit with Avante |
+| `<leader>ae` | Edit selection with Avante (Visual) |
 | `<leader>at` | Toggle Avante sidebar |
 | `<leader>ar` | Refresh Avante |
+
+### Claude Code
+
+| Key | Action |
+|-----|--------|
+| `<C-,>` | Toggle Claude Code terminal |
+| `<leader>cC` | Continue last conversation |
+| `<leader>cV` | Verbose mode |
 
 ---
 
@@ -369,7 +389,7 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 | Plugin | Purpose |
 |--------|---------|
 | [catppuccin](https://github.com/catppuccin/nvim) | Colorscheme (mocha flavour). Manages highlight groups for most plugins. |
-| [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim) | Statusline with catppuccin palette, powerline separators, git branch, diagnostics, search count, file position |
+| [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim) | Statusline with catppuccin palette, powerline separators, git branch, diff, diagnostics, filename, filetype, file position |
 | [bufferline.nvim](https://github.com/akinsho/bufferline.nvim) | Buffer tabs with LSP diagnostic indicators and slant separators |
 | [barbecue.nvim](https://github.com/utilyre/barbecue.nvim) | Winbar with LSP breadcrumb symbols (file → class → function) via nvim-navic |
 | [noice.nvim](https://github.com/folke/noice.nvim) | Replaces cmdline, messages, and popupmenu with floating windows. Icons per command type. LSP progress spinner. |
@@ -389,14 +409,16 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 
 | Plugin | Purpose |
 |--------|---------|
-| [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | LSP client configuration. Uses new `vim.lsp.config`/`vim.lsp.enable` API on 0.11+, legacy `require('lspconfig')` on 0.10. Inlay hints enabled where supported. |
+| [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | LSP client configuration. Uses the `vim.lsp.config`/`vim.lsp.enable` API. Inlay hints enabled where supported. |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | LSP/linter/formatter installer |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Bridges mason with lspconfig. Auto-installs: `clangd`, `lua_ls`, `bashls`, `pyright`, `marksman`, `jsonls`, `yamlls` |
 | [schemastore.nvim](https://github.com/b0o/schemastore.nvim) | Provides SchemaStore catalog to jsonls and yamlls for automatic schema detection |
-| [nvim-lint](https://github.com/mfussenegger/nvim-lint) | Lightweight linter runner. Runs `checkmake` on Makefile buffers on read/write. |
+| [nvim-lint](https://github.com/mfussenegger/nvim-lint) | Lightweight linter runner. Runs `checkmake` (if installed) on Makefile buffers on read/write. |
 | [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) | Completion engine with LSP kind icons, bordered windows, 300ms debounce delay |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | Snippet engine with friendly-snippets |
 | [cmp-nvim-lsp](https://github.com/hrsh7th/cmp-nvim-lsp) | LSP completion source |
+| [cmp_luasnip](https://github.com/saadparwaiz1/cmp_luasnip) | LuaSnip completion source |
+| [nvim-navic](https://github.com/SmiteshP/nvim-navic) | LSP symbol context for the barbecue winbar |
 
 #### LSP Servers (auto-installed via Mason)
 - `clangd` — C/C++ (with background indexing, bundled completions, PCH in memory)
@@ -414,9 +436,8 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 
 | Plugin | Purpose |
 |--------|---------|
-| [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | Syntax highlighting, incremental selection. Auto-installs parsers. Disabled for files >100KB. |
+| [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | `main` branch; parsers built with the `tree-sitter` CLI. Starts Neovim's built-in highlighting; incremental selection reimplemented in the config. Auto-installs parsers. Highlighting skipped for files >500KB. |
 | [nvim-treesitter-textobjects](https://github.com/nvim-treesitter/nvim-treesitter-textobjects) | Function/class/parameter/loop/conditional text objects and motions |
-| [tree-sitter-tcl](https://github.com/lewis6991/tree-sitter-tcl) | TCL language parser |
 
 ### Git
 
@@ -431,7 +452,7 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 | Plugin | Purpose |
 |--------|---------|
 | [nvim-ufo](https://github.com/kevinhwang91/nvim-ufo) | Enhanced folding with virtual text showing number of folded lines |
-| [statuscol.nvim](https://github.com/luukvbaal/statuscol.nvim) | Custom status column: fold indicator, signs, line numbers |
+| [statuscol.nvim](https://github.com/luukvbaal/statuscol.nvim) | Custom status column: fold indicator, signs, line numbers. Line-number clicks disabled; left-click on a git sign previews the hunk |
 
 ### Editing
 
@@ -449,21 +470,23 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 | [nvim-dap](https://github.com/mfussenegger/nvim-dap) | Debug Adapter Protocol core |
 | [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui) | DAP UI panels (scopes, breakpoints, stacks, console) |
 | [nvim-dap-virtual-text](https://github.com/theHamsta/nvim-dap-virtual-text) | Inline variable values during debug sessions |
+| [mason-nvim-dap.nvim](https://github.com/jay-babu/mason-nvim-dap.nvim) | Installs the debug adapters via Mason |
 
 ### Markdown / Docs
 
 | Plugin | Purpose |
 |--------|---------|
 | [glow.nvim](https://github.com/ellisonleao/glow.nvim) | Render markdown in a floating window via `glow` CLI |
-| [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | Inline markdown rendering in Avante buffers |
+| [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | Inline markdown rendering in markdown and Avante buffers |
 
 ### AI
 
 | Plugin | Purpose |
 |--------|---------|
-| [avante.nvim](https://github.com/yetone/avante.nvim) | AI coding assistant powered by Gemini 2.5 Flash. Sidebar mode, agentic editing, diff apply. |
+| [avante.nvim](https://github.com/yetone/avante.nvim) | AI coding assistant powered by Gemini 2.5 Flash. Sidebar mode, agentic editing (asks before running tools), diff apply. |
+| [claude-code.nvim](https://github.com/greggh/claude-code.nvim) | Claude Code CLI in a terminal window (`<C-,>`) |
 
-### Built-in Packs (nvim 0.12, loaded via `package.path`)
+### Built-in Packs (nvim 0.12, loaded with `:packadd` on first use)
 
 | Pack | Purpose |
 |------|---------|
@@ -494,7 +517,7 @@ flavour = "macchiato"
 Provider: **Gemini 2.5 Flash** via `GEMINI_API_KEY` environment variable.
 
 - Sidebar opens on the right (35% width)
-- Agentic mode: can read/edit files autonomously
+- Agentic mode: can read/edit files, but asks for confirmation before each tool runs
 - Diff apply is manual (not auto-applied)
 - Visual selection hints suppressed (`selection.hint_display = "none"`)
 - Submit prompt: `<CR>` in input box
@@ -505,7 +528,7 @@ Provider: **Gemini 2.5 Flash** via `GEMINI_API_KEY` environment variable.
 
 - Triggers after **300ms** debounce (reduces popup noise while typing fast)
 - LSP kind icons shown for each completion item (Function, Class, Variable, etc.)
-- Source labels: `[LSP]`, `[Snip]`, `[Buf]`, `[Path]`
+- Sources: LSP (`[LSP]`, from the 1st character) and LuaSnip (`[Snip]`, from the 2nd)
 - Bordered completion and documentation windows
 
 ### Completion Keymaps
@@ -530,14 +553,14 @@ Provider: **Gemini 2.5 Flash** via `GEMINI_API_KEY` environment variable.
 
 | Mode | Nerd Font Codepoint | Trigger |
 |------|---------------------|---------|
-| Command | `nf-md-apple_keyboard_command` (U+F0E33) | `:` |
+| Command | `nf-md-apple_keyboard_command` (U+F0633) | `:` |
 | Search down | `nf-fa-search` (U+F002) | `/` |
-| Search up | `nf-fa-search` (U+F002) | `?` |
-| Shell | `nf-fa-dollar` (U+F155) | `:!` |
+| Search up | `nf-fa-star` (U+F005) | `?` |
+| Shell | `nf-fa-terminal` (U+F120) | `:!` |
 | Lua | `nf-seti-lua` (U+E620) | `:lua` |
-| Help | `nf-md-help_circle` (U+F059) | `:help` |
+| Help | `nf-md-help` (U+F02D6) | `:help` |
 | Calculator | `nf-fa-calculator` (U+F1EC) | `=` |
-| Input | `nf-md-form_textbox` (U+F193) | `input()` prompts |
+| Input | `nf-md-keyboard_outline` (U+F097B) | `input()` prompts |
 
 ---
 
