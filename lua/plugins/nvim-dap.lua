@@ -13,6 +13,17 @@ return {
       -- (lazy/core/loader.lua:329), so the back-edge short-circuits.
       "jay-babu/mason-nvim-dap.nvim",
     },
+    -- The commands defined by nvim-dap (plugin/dap.lua), nvim-dap-virtual-text
+    -- and mason-nvim-dap. With only `keys`, none of them existed until a
+    -- debug key had been pressed once.
+    cmd = {
+      "DapContinue", "DapToggleBreakpoint", "DapClearBreakpoints", "DapToggleRepl",
+      "DapStepOver", "DapStepInto", "DapStepOut", "DapPause", "DapTerminate",
+      "DapDisconnect", "DapRestartFrame", "DapNew", "DapEval", "DapShowLog",
+      "DapSetLogLevel", "DapInstall", "DapUninstall",
+      "DapVirtualTextEnable", "DapVirtualTextDisable", "DapVirtualTextToggle",
+      "DapVirtualTextForceRefresh",
+    },
     keys = {
       { "<leader>db", function() require("dap").toggle_breakpoint() end,                                desc = "Toggle breakpoint" },
       { "<leader>dB", function() require("dap").set_breakpoint(vim.fn.input("Condition: ")) end,        desc = "Conditional breakpoint" },

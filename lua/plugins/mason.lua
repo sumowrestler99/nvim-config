@@ -1,7 +1,7 @@
 return {
   {
     "mason-org/mason.nvim",
-    cmd  = { "Mason", "MasonInstall", "MasonUpdate" },
+    cmd  = { "Mason", "MasonInstall", "MasonUpdate", "MasonUninstall", "MasonUninstallAll", "MasonLog" },
     keys = {
       { "<leader>mi", "<cmd>Mason<cr>",        desc = "Open Mason UI" },
       { "<leader>mu", "<cmd>MasonUpdate<cr>",  desc = "Update Mason registries" },
