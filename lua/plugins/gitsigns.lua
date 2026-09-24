@@ -48,7 +48,7 @@ return {
 
         local function map(mode, lhs, rhs, desc, opts)
           vim.keymap.set(mode, lhs, rhs,
-            vim.tbl_extend('force', { buffer = bufnr, desc = desc }, opts or {}))
+            vim.tbl_extend('force', { buf = bufnr, desc = desc }, opts or {}))
         end
 
         -- Hunk navigation.

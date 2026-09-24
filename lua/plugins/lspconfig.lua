@@ -48,7 +48,7 @@ return {
 
                 local client = vim.lsp.get_client_by_id(ev.data.client_id)
                 if not client then return end
-                local bufopts = { noremap = true, silent = true, buffer = bufnr }
+                local bufopts = { noremap = true, silent = true, buf = bufnr }
 
                 if client.server_capabilities.documentSymbolProvider then
                     local navic = require('nvim-navic')
