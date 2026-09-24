@@ -128,7 +128,8 @@ return {
       { "<space>wl", desc = "List workspace folders" },
 
       -- Visual mode
-      { "\\qf", mode = "v", desc = "LSP Range Format" },
+      { "\\q",  mode = "x", group = "Format" },
+      { "\\qf", mode = "x", desc = "LSP Range Format" },
 
       -- Mason
       { "<leader>m",  group = "Mason",     icon = { icon = "󰏗", color = "purple" } },
