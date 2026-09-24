@@ -37,9 +37,12 @@
 -- contributed a competing, non-`extends` queries/tcl/ set and an ftplugin that
 -- called vim.treesitter.start() before any parser existed. nvim-treesitter's
 -- own tcl entry is the same grammar (transferred to tree-sitter-grammars).
+--
+-- regex is a later addition rather than inherited: noice highlights regex
+-- patterns in the cmdline with it, and :checkhealth noice reports it missing.
 local ensure_installed = {
     'bash', 'c', 'cpp', 'csv', 'diff', 'html', 'json', 'lua', 'make',
-    'markdown', 'markdown_inline', 'perl', 'python', 'starlark', 'tcl',
+    'markdown', 'markdown_inline', 'perl', 'python', 'regex', 'starlark', 'tcl',
     'textproto', 'vim', 'vimdoc', 'yaml',
 }
 
@@ -57,13 +60,14 @@ local on_demand = { 'css', 'go', 'java', 'javascript', 'rust', 'typescript' }
 -- which only runs once the plugin has loaded and so cannot be consulted here.
 -- Neovim's filetype detection uses the alias, not the parser name: BUILD and
 -- *.bzl are 'bzl', *.textproto and *.pbtxt are 'pbtxt'.
--- markdown_inline is only ever injected; it has no filetype.
+-- markdown_inline and regex are only ever injected; they have no filetype.
 local lang_filetypes = {
     bash            = { 'bash', 'sh' },
     diff            = { 'diff', 'gitdiff' },
     json            = { 'json', 'jsonc' },
     make            = { 'make', 'automake' },
     markdown_inline = {},
+    regex           = {},
     starlark        = { 'starlark', 'bzl' },
     tcl             = { 'tcl', 'expect' },
     textproto       = { 'textproto', 'pbtxt' },
