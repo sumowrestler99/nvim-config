@@ -58,7 +58,8 @@ nvim
 
 On first launch:
 1. lazy.nvim bootstraps itself and downloads all plugins
-2. Treesitter parsers are compiled (`TSUpdate` runs automatically)
+2. Treesitter parsers are built (`:TSUpdate` runs automatically). This needs the `tree-sitter` CLI
+   (0.26.1 or later) and a C compiler on `$PATH`
 3. Mason auto-installs LSP servers (`clangd`, `lua_ls`, `bashls`, `pyright`, `marksman`, `jsonls`, `yamlls`) and tools (`codelldb`, `cpptools`, `debugpy`, `bash-debug-adapter`, `checkmake`)
 4. Restart nvim once everything finishes installing
 

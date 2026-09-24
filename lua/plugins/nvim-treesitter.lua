@@ -252,11 +252,39 @@ return {
         -- and re-parses the 2,346-line parsers.lua and re-fires `User TSUpdate`
         -- -- repeating the work get_available() above has already done. In the
         -- steady state nothing is missing, so the call is skipped entirely.
+        -- Install tasks still in flight, by language. A buffer whose parser is
+        -- on its way waits for that task rather than queueing a second
+        -- install: a duplicate request blocks in vim.wait() until the first
+        -- one finishes (nvim-treesitter install.lua:474-478).
+        local pending = {}
+
+        -- `main` builds parsers with the tree-sitter CLI (0.26.1 or later, per
+        -- its README). Without it every install fails, silently -- the failure
+        -- is hidden by the pcall(vim.treesitter.start) below -- so say so once.
+        local function can_build()
+            if vim.fn.executable('tree-sitter') == 1 then return true end
+            if not vim.g.user_ts_cli_warned then
+                vim.g.user_ts_cli_warned = true
+                vim.notify('nvim-treesitter: no tree-sitter CLI on $PATH, so '
+                    .. 'parsers cannot be installed', vim.log.levels.WARN)
+            end
+            return false
+        end
+
+        ---@param langs string[]
+        local function install(langs)
+            if not can_build() then return end
+            local task = ts.install(langs)
+            for _, lang in ipairs(langs) do
+                pending[lang] = task
+            end
+        end
+
         local missing = vim.tbl_filter(function(lang)
             return available[lang] and not installed[lang]
         end, ensure_installed)
         if #missing > 0 then
-            ts.install(missing)
+            install(missing)
         end
 
         ---@param buf integer
@@ -271,10 +299,14 @@ return {
 
             if installed[lang] then
                 pcall(vim.treesitter.start, buf, lang)
-            elseif available[lang] then
-                -- auto_install: fetch it, then highlight once it lands.
-                installed[lang] = true -- do not queue the same language twice
-                ts.install({ lang }):await(vim.schedule_wrap(function()
+                return
+            end
+            -- auto_install: fetch it, then highlight once it lands.
+            if not pending[lang] and available[lang] then
+                install({ lang })
+            end
+            if pending[lang] then
+                pending[lang]:await(vim.schedule_wrap(function()
                     pcall(vim.treesitter.start, buf, lang)
                 end))
             end
