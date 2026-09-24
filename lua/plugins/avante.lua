@@ -112,6 +112,10 @@ return {
             auto_set_keymaps                 = true,
             auto_apply_diff_after_generation = false,
             support_paste_from_clipboard     = false,
+            -- The default is true (avante/config.lua:683): in agentic mode every
+            -- tool, shell commands and file writes included, would run without
+            -- a confirmation prompt.
+            auto_approve_tool_permissions    = false,
         },
 
         -- UI windows
