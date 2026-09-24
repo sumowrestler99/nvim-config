@@ -35,6 +35,8 @@ return {
             "qf",
             "fugitive",
             "fugitiveblame",
+            -- Replaces barbecue's default list, which had netrw.
+            "netrw",
         },
     },
 }
