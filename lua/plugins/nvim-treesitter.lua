@@ -57,7 +57,13 @@ local function select_node(node)
     -- Marks are 1-indexed for rows and columns; node ranges are 0-indexed.
     vim.fn.setpos("'<", { buf, srow + 1, scol + 1, 0 })
     vim.fn.setpos("'>", { buf, erow + 1, ecol, 0 })
-    vim.cmd('normal! gv')
+    -- `gv` reselects using the *last* visual mode, so after any linewise or
+    -- blockwise selection it would reselect the node linewise or blockwise.
+    -- A trailing `v` switches that back to charwise over the same marks. It
+    -- must not be sent when the last mode was already charwise (or none):
+    -- there `v` would end Visual mode instead.
+    local last = vim.fn.visualmode()
+    vim.cmd('normal! gv' .. ((last == 'V' or last == '\22') and 'v' or ''))
 end
 
 --- Incremental selection.
