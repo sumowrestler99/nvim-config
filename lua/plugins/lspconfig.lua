@@ -8,8 +8,10 @@ local filetypes = {
     "lua", "python", "typescript", "javascript",
     "html", "css", "json", "jsonc", "yaml", "markdown",
     "go", "rust", "bash", "sh", "c", "cpp", "java",
-    "swift", "objective-c", "objective-cpp",
-    "proto", "textpb", "bzl", "gss", "sql", "xml",
+    -- Neovim filetype names, not LSP languageIds: objc rather than
+    -- "objective-c", and pbtxt for *.textproto/*.textpb.
+    "swift", "objc", "objcpp", "cuda",
+    "proto", "pbtxt", "bzl", "gss", "sql", "xml",
     "dart",
 }
 vim.list_extend(filetypes, extra.filetypes or {})
@@ -134,7 +136,7 @@ return {
         if vim.fn.has("mac") == 1 then
             vim.lsp.config('sourcekit', {
                 cmd          = { "xcrun", "sourcekit-lsp" },
-                filetypes    = { "swift", "objective-c", "objective-cpp" },
+                filetypes    = { "swift", "objc", "objcpp" },
                 root_markers = { "Package.swift", ".git" },
             })
             vim.lsp.enable('sourcekit')
