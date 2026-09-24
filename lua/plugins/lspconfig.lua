@@ -114,11 +114,17 @@ return {
                 -- A machine-local module can claim paths that another server owns.
                 if extra.skip_clangd and extra.skip_clangd(filepath) then return end
 
-                local markers = { 'compile_commands.json', '.clangd', '.git' }
+                -- nvim-lspconfig's own list (lsp/clangd.lua:62-70). A root_dir
+                -- function replaces root_markers entirely, so it is repeated here.
+                local markers = {
+                    '.clangd', '.clang-tidy', '.clang-format', 'compile_commands.json',
+                    'compile_flags.txt', 'configure.ac', '.git',
+                }
                 local found = vim.fs.find(markers, { path = filepath, upward = true })[1]
-                if found then
-                    on_dir(vim.fs.dirname(found))
-                end
+                -- on_dir must be called even when nothing is found: vim.lsp only
+                -- starts the client from inside that callback (runtime
+                -- lsp.lua:548-555). nil starts clangd in single-file mode.
+                on_dir(found and vim.fs.dirname(found) or nil)
             end,
         })
 
