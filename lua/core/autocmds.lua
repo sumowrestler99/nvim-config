@@ -33,11 +33,22 @@ return function() -- This function is called by init.lua
 
     -- Highlight on yank + send to local clipboard via OSC52.
     -- OSC52 copy works locally and over SSH without a terminal round-trip.
+    --
+    -- TextYankPost fires for deletes and changes too (:h TextYankPost), so
+    -- the copy is limited to what a person would call "copying": an actual
+    -- `y` into the unnamed or a clipboard register, typed rather than replayed
+    -- from a macro. Without this, every `d`, `x` and `c` overwrote the system
+    -- clipboard, as did `"ay` and any yank inside a macro.
     vim.api.nvim_create_autocmd("TextYankPost", {
         group    = vim.api.nvim_create_augroup("YankHighlight", { clear = true }),
         callback = function()
             vim.hl.on_yank()
-            require('vim.ui.clipboard.osc52').copy('+')(vim.v.event.regcontents)
+
+            local ev = vim.v.event
+            if ev.operator ~= "y" then return end
+            if ev.regname ~= "" and ev.regname ~= "+" and ev.regname ~= "*" then return end
+            if vim.fn.reg_executing() ~= "" then return end
+            require('vim.ui.clipboard.osc52').copy('+')(ev.regcontents)
         end,
     })
 
