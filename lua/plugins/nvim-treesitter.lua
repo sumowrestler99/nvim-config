@@ -52,11 +52,21 @@ local on_demand = { 'css', 'go', 'java', 'javascript', 'rust', 'typescript' }
 -- starlark textproto vim vimdoc) belonged to filetypes that never loaded the
 -- plugin, so they were never used for highlighting.
 --
--- Only languages whose filetypes differ from their own name need an entry.
--- markdown_inline is injected into markdown and has no filetype of its own.
+-- Only languages with filetypes other than their own name need an entry.
+-- These mirror the aliases nvim-treesitter registers in plugin/filetypes.lua,
+-- which only runs once the plugin has loaded and so cannot be consulted here.
+-- Neovim's filetype detection uses the alias, not the parser name: BUILD and
+-- *.bzl are 'bzl', *.textproto and *.pbtxt are 'pbtxt'.
+-- markdown_inline is only ever injected; it has no filetype.
 local lang_filetypes = {
     bash            = { 'bash', 'sh' },
+    diff            = { 'diff', 'gitdiff' },
+    json            = { 'json', 'jsonc' },
+    make            = { 'make', 'automake' },
     markdown_inline = {},
+    starlark        = { 'starlark', 'bzl' },
+    tcl             = { 'tcl', 'expect' },
+    textproto       = { 'textproto', 'pbtxt' },
     vimdoc          = { 'help' },
 }
 local filetypes = {}
