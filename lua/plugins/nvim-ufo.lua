@@ -39,7 +39,6 @@ return {
         })
 
         require('ufo').setup({
-            filetype_exclude       = filetype_exclude,
             fold_virt_text_handler = handler,
         })
     end,

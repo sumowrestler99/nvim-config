@@ -11,7 +11,6 @@ return {
                 dark = "mocha",
             },
             transparent_background = false,
-            show_end_of_buffer = false, -- show the '~' characters after the end of buffers
             term_colors = false,
             dim_inactive = {
                 enabled = true,
@@ -55,9 +54,7 @@ return {
                 noice = true,
                 which_key = true,
                 ufo = true,
-                bufferline = true,
                 diffview = true,
-                treesitter = true,
                 indent_blankline = {
                     enabled = false,
                     colored_indent_levels = false,

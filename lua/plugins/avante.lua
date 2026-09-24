@@ -159,13 +159,11 @@ return {
             },
         },
 
-        hints     = { enabled = false },
         selection = { hint_display = "none" },
 
         -- Diff view
         diff = {
             autojump    = true,
-            list_opener = "copen",
         },
 
         -- Use catppuccin-compatible diff highlights
