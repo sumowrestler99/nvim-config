@@ -114,18 +114,19 @@ return {
                 ['<C-d>']  = cmp.mapping.scroll_docs(4),
                 ['<C-e>']  = cmp.mapping.abort(),
                 ['<C-y>']  = cmp.mapping.confirm({ select = true }),
+                -- After has_words_before() is false there is nothing left to
+                -- decide: its negation is exactly "at column 0 or after
+                -- whitespace", so the old fourth branch always matched and its
+                -- trailing `else cmp.complete()` could never run.
                 ['<Tab>'] = cmp.mapping(function(fallback)
-                    local col = vim.fn.col('.') - 1
                     if cmp.visible() then
                         cmp.select_next_item(select_opts)
                     elseif luasnip.expand_or_locally_jumpable() then
                         luasnip.expand_or_jump()
                     elseif has_words_before() then
                         cmp.complete()
-                    elseif col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
-                        fallback()
                     else
-                        cmp.complete()
+                        fallback()
                     end
                 end, { 'i', 's' }),
                 -- locally_jumpable, matching <Tab>. Plain jumpable(-1) omits
