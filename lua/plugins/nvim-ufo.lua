@@ -27,7 +27,7 @@ end
 
 return {
     'kevinhwang91/nvim-ufo',
-    event        = "BufReadPost",
+    event        = { "BufReadPost", "BufNewFile" },
     dependencies = "kevinhwang91/promise-async",
     config = function()
         local filetype_exclude = { 'help', 'alpha', 'dashboard', 'neo-tree', 'Trouble', 'lazy', 'mason' }
