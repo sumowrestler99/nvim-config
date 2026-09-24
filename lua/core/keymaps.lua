@@ -35,8 +35,9 @@ map("n", "<leader>ut", function()
     require("undotree").open({ command = "rightbelow 30vnew" })
 end, { noremap = true, silent = true, desc = "Toggle undotree" })
 
--- Paste image from clipboard (img-clip)
-map({ "n", "i" }, "<leader>pi", "<cmd>PasteImage<cr>", { noremap = true, silent = true, desc = "Paste image" })
+-- Paste image from clipboard (img-clip). Normal mode only: in insert mode a
+-- typed \p waited out 'timeoutlen' and a literal \pi ran :PasteImage.
+map("n", "<leader>pi", "<cmd>PasteImage<cr>", { noremap = true, silent = true, desc = "Paste image" })
 
 -- Toggle tab width between 2 and 4
 map("n", "<F4>", function()
