@@ -74,7 +74,6 @@ return {
 
 
     dependencies = {
-        "stevearc/dressing.nvim",
         "nvim-lua/plenary.nvim",
         "MunifTanjim/nui.nvim",
         "folke/snacks.nvim",               -- file selector + input provider

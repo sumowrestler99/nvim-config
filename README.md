@@ -374,9 +374,8 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 | [barbecue.nvim](https://github.com/utilyre/barbecue.nvim) | Winbar with LSP breadcrumb symbols (file → class → function) via nvim-navic |
 | [noice.nvim](https://github.com/folke/noice.nvim) | Replaces cmdline, messages, and popupmenu with floating windows. Icons per command type. LSP progress spinner. |
 | [nvim-notify](https://github.com/rcarriga/nvim-notify) | Animated notification popups with icons per level |
-| [snacks.nvim](https://github.com/folke/snacks.nvim) | Indent guides with animation, smooth scrolling, fuzzy picker |
+| [snacks.nvim](https://github.com/folke/snacks.nvim) | Indent guides with animation, smooth scrolling, fuzzy picker, `vim.ui.input`/`vim.ui.select` |
 | [which-key.nvim](https://github.com/folke/which-key.nvim) | Popup showing available keymaps after partial input |
-| [dressing.nvim](https://github.com/stevearc/dressing.nvim) | Replaces `vim.ui.input` and `vim.ui.select` with bordered floating windows |
 | [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | Animates cursor movement with a smear trail |
 
 ### File Management
