@@ -111,6 +111,10 @@ return {
             auto_set_highlight_group         = true,
             auto_set_keymaps                 = true,
             auto_apply_diff_after_generation = false,
+            -- Has no effect: avante replaces it with "is img-clip installed"
+            -- (avante/config.lua:1216,1275) and wraps vim.paste, requiring
+            -- img-clip on the first paste in any buffer. The wrapper only acts in
+            -- AvanteInput; img-clip's own paste hook is off (img-clip.lua).
             support_paste_from_clipboard     = false,
             -- The default is true (avante/config.lua:683): in agentic mode every
             -- tool, shell commands and file writes included, would run without
