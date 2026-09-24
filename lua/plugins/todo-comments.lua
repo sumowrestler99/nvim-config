@@ -1,7 +1,8 @@
 return {
     "folke/todo-comments.nvim",
     dependencies = "nvim-lua/plenary.nvim",
-    event = "BufReadPost",
+    event = { "BufReadPost", "BufNewFile" },
+    cmd = { "TodoQuickFix", "TodoLocList", "TodoTelescope", "TodoFzfLua", "TodoTrouble" },
     keys = {
         -- todo-comments ships no :TodoSnacks command. Its plugin/todo.vim only
         -- defines TodoQuickFix/TodoLocList/TodoTelescope/TodoFzfLua/TodoTrouble.
@@ -38,8 +39,9 @@ return {
             warning = { "DiagnosticWarn",    "WarningMsg","#FBBF24" },
             info    = { "DiagnosticInfo",               "#2563EB" },
             hint    = { "DiagnosticHint",               "#10B981" },
-            default = { "Identifier",                   "#7C3AED" },
-            test    = { "Identifier",                   "#FF006E" },
+            -- Hex only: a highlight group listed first would always win.
+            default = { "#7C3AED" },
+            test    = { "#FF006E" },
         },
     },
 }
