@@ -7,6 +7,16 @@ local function set_diagnostic_highlights()
     vim.api.nvim_set_hl(0, 'DiagnosticUnderlineHint',    { undercurl = true, sp = 'Blue'    })
 end
 
+-- Files that should always open at the top: git's message and todo buffers.
+local lastplace_skip = {
+    COMMIT_EDITMSG     = true,
+    MERGE_MSG          = true,
+    TAG_EDITMSG        = true,
+    NOTES_EDITMSG      = true,
+    EDIT_DESCRIPTION   = true,
+    ["git-rebase-todo"] = true,
+}
+
 return function() -- This function is called by init.lua
 
     local lastplace = vim.api.nvim_create_augroup("LastPlace", {})
@@ -15,7 +25,14 @@ return function() -- This function is called by init.lua
         group = lastplace,
         pattern = { "*" },
         desc = "remember last cursor place",
-        callback = function()
+        callback = function(args)
+            -- Once per buffer: BufReadPost fires again on every :e reload.
+            if vim.b[args.buf].lastplace_done then return end
+            vim.b[args.buf].lastplace_done = true
+            -- By name, because filetype detection has not run yet here.
+            if vim.bo[args.buf].buftype ~= "" or lastplace_skip[vim.fs.basename(args.file)] then
+                return
+            end
             local mark = vim.api.nvim_buf_get_mark(0, '"')
             local lcount = vim.api.nvim_buf_line_count(0)
             if mark[1] > 0 and mark[1] <= lcount then
