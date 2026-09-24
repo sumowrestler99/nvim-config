@@ -22,7 +22,7 @@ return {
         "AvanteSwitchProvider", "AvanteSwitchSelectorProvider", "AvanteSwitchInputProvider",
         "AvanteACPModels", "AvanteACPModes",
     },
-    -- These mirror avante's own defaults (avante/config.lua:755-768), but the
+    -- These mirror avante's own defaults (avante/config.lua:755-797), but the
     -- <Plug> targets MUST be spelled out rather than left as bare lhs stubs.
     --
     -- avante sets its keymaps through Utils.safe_keymap_set, which drops any
@@ -46,6 +46,13 @@ return {
         { "<leader>at", "<Plug>(AvanteToggle)",           mode = "n",          remap = true, desc = "avante: toggle" },
         { "<leader>ad", "<Plug>(AvanteToggleDebug)",      mode = "n",          remap = true, desc = "avante: toggle debug" },
         { "<leader>aC", "<Plug>(AvanteToggleSelection)",  mode = "n",          remap = true, desc = "avante: toggle selection" },
+        { "<leader>as", "<Plug>(AvanteToggleSuggestion)", mode = "n",          remap = true, desc = "avante: toggle suggestion" },
+        { "<leader>aR", "<Plug>(AvanteShowRepoMap)",      mode = "n",          remap = true, desc = "avante: show repo map" },
+        { "<leader>a?", "<Plug>(AvanteSelectModel)",      mode = "n",          remap = true, desc = "avante: select model" },
+        { "<leader>ah", "<Plug>(AvanteSelectHistory)",    mode = "n",          remap = true, desc = "avante: select history" },
+        { "<leader>aM", "<Plug>(AvanteSelectACPModel)",   mode = "n",          remap = true, desc = "avante: select ACP model" },
+        { "<leader>am", "<Plug>(AvanteSelectACPMode)",    mode = "n",          remap = true, desc = "avante: select ACP mode" },
+        { "<leader>aB", "<Plug>(AvanteAddAllBuffers)",    mode = "n",          remap = true, desc = "avante: add all buffers" },
     },
     version = false, -- Never set this value to "*"! Never!
     -- Native Rust libs (avante_tokenizers/templates/repo_map/html2md).
