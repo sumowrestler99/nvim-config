@@ -73,7 +73,10 @@ end
 ---@return table[] # Splice into `lazy.setup{ spec = ... }`; empty when absent.
 function M.plugin_specs()
   local dir = vim.fn.stdpath('config') .. '/lua/local/plugins'
-  if vim.uv.fs_stat(dir) then
+  -- Not just "exists": lazy.nvim also fails ("No specs found for module")
+  -- when the import yields nothing, e.g. an empty directory.
+  if #vim.fn.glob(dir .. '/*.lua', false, true) > 0
+      or #vim.fn.glob(dir .. '/*/init.lua', false, true) > 0 then
     return { { import = 'local.plugins' } }
   end
   return {}
