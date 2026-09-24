@@ -35,7 +35,7 @@ return {
         vim.api.nvim_create_autocmd('FileType', {
             group    = vim.api.nvim_create_augroup('local_detach_ufo', { clear = true }),
             pattern  = filetype_exclude,
-            callback = function() require('ufo').detach() end,
+            callback = function(args) require('ufo').detach(args.buf) end,
         })
 
         require('ufo').setup({
