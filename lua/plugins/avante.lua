@@ -75,11 +75,7 @@ return {
         "nvim-tree/nvim-web-devicons",
         -- img-clip loaded separately (see img-clip.lua / <leader>pi)
         -- Removed from here to prevent it intercepting normal paste operations.
-        {
-            "MeanderingProgrammer/render-markdown.nvim",
-            ft   = { "markdown", "Avante" },
-            opts = { file_types = { "markdown", "Avante" } },
-        },
+        "MeanderingProgrammer/render-markdown.nvim", -- configured in render-markdown.lua
     },
 
     ---@module 'avante'
