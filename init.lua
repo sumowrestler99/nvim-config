@@ -79,10 +79,11 @@ require('lazy').setup({
                 "tarPlugin",     -- browsing .tar archives in a buffer
                 "zipPlugin",     -- browsing .zip archives in a buffer
                 "tutor",         -- :Tutor
-                -- neo-tree is the file explorer and nvim's built-in gx handles
-                -- URLs. Fugitive's :GBrowse runtime!s autoload/netrw.vim itself
-                -- (unaffected by this) and otherwise falls back to vim.ui.open.
-                "netrwPlugin",
+                -- netrwPlugin is deliberately NOT here. It provides scp://,
+                -- sftp:// and http:// editing (README: "Remote file editing"),
+                -- :Explore, and the directory browser for `nvim <dir>` and
+                -- `:e <dir>` -- neo-tree only loads on :Neotree or its keys, so
+                -- without netrw those open an empty buffer.
             },
         },
     },
