@@ -54,52 +54,65 @@ end, { noremap = true, silent = true, desc = "Toggle tab width 2/4" })
 -- Example: Close current buffer without closing window
 -- map("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete Buffer" })
 
--- Toggle all layout guides (Indent lines, Folds, Smart/Color columns, Inlay hints, Git signs, and Diagnostic virtual text) simultaneously
-map("n", "<leader>ul", function()
-    -- 1. Toggle Snacks Indent Guides (if installed and loaded)
-    if pcall(require, "snacks") then
-        Snacks.toggle.indent():toggle()
-    end
-
-    -- 2. Toggle Git Signs in the left gutter (if installed and loaded)
-    if pcall(require, "gitsigns") then
-        require("gitsigns").toggle_signs()
-    end
-
-    -- 3. Toggle Fold Column (0 <-> auto)
-    if vim.wo.foldcolumn == "0" then
-        vim.wo.foldcolumn = "auto"
-    else
-        vim.wo.foldcolumn = "0"
-    end
-
-    -- 4. Toggle LSP Inlay Hints (Parameter annotations) safely, scoped to current buffer (bufnr = 0)
-    if vim.lsp.inlay_hint then
-        local is_enabled = vim.lsp.inlay_hint.is_enabled({ bufnr = 0 })
-        vim.lsp.inlay_hint.enable(not is_enabled, { bufnr = 0 })
-    end
-
-    -- 5. Toggle LSP Diagnostics inline Virtual Text (Red squiggles/error messages)
-    local diag_config = vim.diagnostic.config() or {}
-    if diag_config.virtual_text == false then
-        vim.diagnostic.config({ virtual_text = true })
-    else
-        vim.diagnostic.config({ virtual_text = false })
-    end
-
-    -- 6. Toggle Color Column (Clear <-> 100/80 guideline)
-    if vim.wo.colorcolumn == "" then
-        -- Intelligently restore correct limit based on active filetype
-        local ft = vim.bo.filetype
-        if ft == "c" or ft == "cpp" or ft == "rust" then
-            vim.wo.colorcolumn = "80"
-        else
-            vim.wo.colorcolumn = "100"
+--- Suspends or resumes smartcolumn's management of 'colorcolumn'.
+---
+--- smartcolumn owns the option: it rewrites it from BufEnter, CursorMoved and
+--- WinScrolled whenever a buffer crosses the limit (smartcolumn.lua:79-91), so
+--- writing 'colorcolumn' directly only lasts until the next crossing. Its
+--- autocmds live in the "SmartColumn" augroup (smartcolumn.lua:103), and
+--- setup() with no argument re-creates them while keeping the configured
+--- options, which persist in the module (smartcolumn.lua:96-101).
+---@param enabled boolean
+local function set_smartcolumn(enabled)
+    -- A plain require: lazy's require hook loads and configures the plugin if
+    -- it has not been yet, and a genuine error is not swallowed.
+    local smartcolumn = require("smartcolumn")
+    if enabled then
+        smartcolumn.setup()
+        -- It only writes on a state *change*, cached per buffer; forget the
+        -- cache so the next update re-applies the column.
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+            vim.b[buf].prev_state = nil
         end
-        vim.notify("Layout Guides: ENABLED", vim.log.levels.INFO)
+        vim.api.nvim_exec_autocmds("BufEnter", { group = "SmartColumn" })
     else
-        vim.wo.colorcolumn = ""
-        vim.notify("Layout Guides: DISABLED (Clean Mode)", vim.log.levels.INFO)
+        vim.api.nvim_clear_autocmds({ group = "SmartColumn" })
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+            vim.wo[win].colorcolumn = ""
+        end
     end
+end
+
+-- Values to put back when clean mode ends, captured when it starts.
+local before_clean = {}
+
+-- Clean mode: hide every layout guide at once -- indent lines, git signs, the
+-- fold column, inlay hints, diagnostic virtual text and the colour column --
+-- and put them all back.
+--
+-- One flag drives every component. Each used to flip independently, so a
+-- component that had changed on its own (smartcolumn clearing its column, or
+-- a window opened since) came back inverted relative to the rest.
+map("n", "<leader>ul", function()
+    local clean = not vim.g.clean_mode
+    vim.g.clean_mode = clean
+
+    if clean then
+        before_clean = {
+            foldcolumn   = vim.wo.foldcolumn,
+            virtual_text = vim.diagnostic.config().virtual_text,
+        }
+    end
+
+    -- snacks is `lazy = false` (see snacks.lua), so Snacks always exists.
+    if clean then Snacks.indent.disable() else Snacks.indent.enable() end
+    require("gitsigns").toggle_signs(not clean)
+    vim.wo.foldcolumn = clean and "0" or before_clean.foldcolumn
+    vim.lsp.inlay_hint.enable(not clean, { bufnr = 0 })
+    vim.diagnostic.config({ virtual_text = (not clean) and before_clean.virtual_text })
+    set_smartcolumn(not clean)
+
+    vim.notify(clean and "Layout Guides: DISABLED (Clean Mode)" or "Layout Guides: ENABLED",
+        vim.log.levels.INFO)
 end, { noremap = true, silent = true, desc = "Toggle Layout Guides (Clean Mode)" })
 
