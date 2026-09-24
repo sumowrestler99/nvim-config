@@ -99,9 +99,17 @@ return {
             -- Requires GEMINI_API_KEY in the environment.
             gemini = {
                 -- @see https://ai.google.dev/gemini-api/docs/models/gemini
-                model       = "gemini-2.5-flash",
-                temperature = 0,
-                max_tokens  = 8192,
+                model = "gemini-2.5-flash",
+                -- Sent verbatim as the request body (avante
+                -- providers/init.lua:269-280, providers/gemini.lua:184).
+                -- Top-level temperature/max_tokens are not read by this
+                -- provider.
+                extra_request_body = {
+                    generationConfig = {
+                        temperature     = 0,
+                        maxOutputTokens = 8192,
+                    },
+                },
             },
         },
 
