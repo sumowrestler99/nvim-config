@@ -86,6 +86,45 @@ end
 -- Values to put back when clean mode ends, captured when it starts.
 local before_clean = {}
 
+--- Hides or restores the fold column in every window, matching the other
+--- guides, which are all global. Each window's own value is remembered, so
+--- windows that had none (neo-tree, help) do not gain one on the way back.
+--- The global value covers windows opened while clean mode is on.
+---@param clean boolean
+local function set_foldcolumn(clean)
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if clean then
+            vim.w[win].pre_clean_foldcolumn = vim.wo[win].foldcolumn
+            vim.wo[win].foldcolumn = "0"
+        else
+            local saved = vim.w[win].pre_clean_foldcolumn
+            if saved then
+                vim.wo[win].foldcolumn = saved
+                vim.w[win].pre_clean_foldcolumn = nil
+            elseif vim.bo[vim.api.nvim_win_get_buf(win)].buftype == "" then
+                -- A file window opened during clean mode.
+                vim.wo[win].foldcolumn = before_clean.foldcolumn
+            end
+        end
+    end
+    vim.go.foldcolumn = clean and "0" or before_clean.foldcolumn
+end
+
+--- Turns inlay hints on or off in every buffer that should have them -- the
+--- same set the LspAttach handler in lspconfig.lua enables: file buffers
+--- whose client supports textDocument/inlayHint. That handler also checks
+--- vim.g.clean_mode, so buffers attaching during clean mode stay clean.
+---@param enabled boolean
+local function set_inlay_hints(enabled)
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(buf)
+            and vim.uri_from_bufnr(buf):match("^file:")
+            and #vim.lsp.get_clients({ bufnr = buf, method = "textDocument/inlayHint" }) > 0 then
+            vim.lsp.inlay_hint.enable(enabled, { bufnr = buf })
+        end
+    end
+end
+
 -- Clean mode: hide every layout guide at once -- indent lines, git signs, the
 -- fold column, inlay hints, diagnostic virtual text and the colour column --
 -- and put them all back.
@@ -99,7 +138,7 @@ map("n", "<leader>ul", function()
 
     if clean then
         before_clean = {
-            foldcolumn   = vim.wo.foldcolumn,
+            foldcolumn   = vim.go.foldcolumn,
             virtual_text = vim.diagnostic.config().virtual_text,
         }
     end
@@ -107,8 +146,8 @@ map("n", "<leader>ul", function()
     -- snacks is `lazy = false` (see snacks.lua), so Snacks always exists.
     if clean then Snacks.indent.disable() else Snacks.indent.enable() end
     require("gitsigns").toggle_signs(not clean)
-    vim.wo.foldcolumn = clean and "0" or before_clean.foldcolumn
-    vim.lsp.inlay_hint.enable(not clean, { bufnr = 0 })
+    set_foldcolumn(clean)
+    set_inlay_hints(not clean)
     vim.diagnostic.config({ virtual_text = (not clean) and before_clean.virtual_text })
     set_smartcolumn(not clean)
 
