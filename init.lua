@@ -8,6 +8,11 @@ vim.g.maplocalleader = "\\"  -- <localleader> = backslash
 
 -- Treat .vscode/*.json files as jsonc (JSON with Comments) so LSPs/linters don't flag comments as errors
 -- Treat .cint files as C
+--
+-- No `filename` table: vim.filetype falls back to matching the basename alone,
+-- so `['launch.json'] = 'jsonc'` made every launch.json, tasks.json and
+-- settings.json anywhere on disk jsonc. The pattern below already covers the
+-- .vscode/ ones, which are the only ones that actually allow comments.
 vim.filetype.add({
   extension = {
     cint = 'c',
@@ -20,7 +25,7 @@ vim.filetype.add({
 -- This file can be loaded by calling `lua require('plugins')` from your init.vim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
-  vim.fn.system({
+  local out = vim.fn.system({
     "git",
     "clone",
     "--filter=blob:none",
@@ -28,6 +33,17 @@ if not vim.uv.fs_stat(lazypath) then
     "--branch=stable", -- latest stable release
     lazypath,
   })
+  -- Without this check a failed clone surfaces a few lines later as
+  -- "module 'lazy' not found", which says nothing about the real cause.
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
 end
 vim.opt.rtp:prepend(lazypath)
 
