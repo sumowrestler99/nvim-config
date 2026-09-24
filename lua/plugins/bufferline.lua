@@ -7,6 +7,7 @@ return {
   -- The 'config' function runs after the plugin is successfully loaded
   config = function()
     require("bufferline").setup {
+      highlights = require("catppuccin.special.bufferline").get_theme(),
       options = {
         separator_style = "padded_slant",
         -- The defaults are "bdelete! %d", which throws away unsaved changes
