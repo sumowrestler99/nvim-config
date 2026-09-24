@@ -34,7 +34,16 @@ return {
                 operators = {},
             },
             color_overrides = {},
-            custom_highlights = {},
+            custom_highlights = {
+                -- nvim-dap.lua's stopped-line highlight; neither catppuccin
+                -- nor nvim-dap defines it.
+                DapStoppedLine         = { link = "Visual" },
+                -- catppuccin's avante integration defines these first, so
+                -- avante's own highlights.diff option is skipped
+                -- (avante highlights.lua:113-116). Set them here instead.
+                AvanteConflictCurrent  = { link = "DiffText" },
+                AvanteConflictIncoming = { link = "DiffAdd" },
+            },
             integrations = {
                 barbecue = {
                     dim_dirname = true,
@@ -48,13 +57,14 @@ return {
                 dap = true,
                 dap_ui = true,
                 overseer = false,
-                telescope = true,
                 notify = true,
                 mini = false,
                 noice = true,
                 which_key = true,
                 ufo = true,
                 diffview = true,
+                -- Matches avante.lua's sidebar_header.rounded = true.
+                avante = { enabled = true, windows_sidebar_header_rounded = true },
                 indent_blankline = {
                     enabled = false,
                     colored_indent_levels = false,

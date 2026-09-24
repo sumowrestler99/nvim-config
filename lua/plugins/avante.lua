@@ -166,12 +166,7 @@ return {
             autojump    = true,
         },
 
-        -- Use catppuccin-compatible diff highlights
-        highlights = {
-            diff = {
-                current  = "DiffText",
-                incoming = "DiffAdd",
-            },
-        },
+        -- Diff highlight colours are set in catpuccin.lua (custom_highlights):
+        -- avante skips highlights.diff when the groups already exist.
     },
 }
