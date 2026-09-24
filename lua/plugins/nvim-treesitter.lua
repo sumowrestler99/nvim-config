@@ -64,9 +64,12 @@ local on_demand = { 'css', 'go', 'java', 'javascript', 'rust', 'typescript' }
 local lang_filetypes = {
     bash            = { 'bash', 'sh' },
     diff            = { 'diff', 'gitdiff' },
+    javascript      = { 'javascript', 'javascriptreact' },
     json            = { 'json', 'jsonc' },
     make            = { 'make', 'automake' },
+    markdown        = { 'markdown', 'pandoc' },
     markdown_inline = {},
+    python          = { 'python', 'gyp' },
     regex           = {},
     starlark        = { 'starlark', 'bzl' },
     tcl             = { 'tcl', 'expect' },
@@ -207,8 +210,6 @@ return {
     config = function()
         local ts = require('nvim-treesitter')
         ts.setup()
-
-        vim.api.nvim_set_hl(0, "fec", { link = "Identifier" })
 
         local group = vim.api.nvim_create_augroup('UserTreesitter', { clear = true })
 
