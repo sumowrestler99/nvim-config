@@ -9,6 +9,7 @@ return {
         "DiffviewToggleFiles",
         "DiffviewFocusFiles",
         "DiffviewRefresh",
+        "DiffviewLog",
     },
     keys = {
         { "<leader>gd", "<cmd>DiffviewOpen<cr>",            desc = "Diffview open" },
@@ -37,7 +38,8 @@ return {
             },
         },
         keymaps = {
-            view = {
+            -- 3-way layouts only: diffget has no target in 2-way diffs.
+            diff3 = {
                 -- Custom 2-character shortcuts for 3-way merge resolution
                 { { "n", "x" }, "g<", function() require("diffview.actions").diffget("ours")() end, { desc = "Obtain diff from Left (ours)" } },
                 { { "n", "x" }, "g>", function() require("diffview.actions").diffget("theirs")() end, { desc = "Obtain diff from Right (theirs)" } },
