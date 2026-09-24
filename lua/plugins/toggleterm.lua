@@ -1,11 +1,24 @@
 return {
     "akinsho/toggleterm.nvim",
     keys = { { [[<C-\>]], desc = "toggleterm" } },
+    -- Created only by setup() (toggleterm.lua:434-492).
+    cmd = {
+        "ToggleTerm", "ToggleTermToggleAll", "TermExec", "TermSelect", "TermNew",
+        "ToggleTermSendCurrentLine", "ToggleTermSendVisualLines",
+        "ToggleTermSendVisualSelection", "ToggleTermSetName",
+    },
     opts = {
         -- size can be a number or function which is passed the current terminal
         size = 20,
         open_mapping = [[<c-\>]],
-        --on_create = fun(t: Terminal), -- function to run when the terminal is first created
+        -- <C-\> alone is the toggle inside terminal buffers and would fire
+        -- before <C-\><C-n> could be typed. A longer buffer-local mapping
+        -- makes Neovim wait for the second key, so the built-in escape to
+        -- Terminal-Normal mode works again.
+        on_create = function(t)
+            vim.keymap.set("t", [[<C-\><C-n>]], [[<C-\><C-n>]],
+                { buf = t.bufnr, desc = "Terminal-Normal mode" })
+        end,
         --on_open = fun(t: Terminal), -- function to run when the terminal opens
         --on_close = fun(t: Terminal), -- function to run when the terminal closes
         --on_stdout = fun(t: Terminal, job: number, data: string[], name: string) -- callback for processing output on stdout
@@ -59,5 +72,12 @@ return {
                 return term.name
             end
         },
-    }
+    },
+    config = function(_, opts)
+        require("toggleterm").setup(opts)
+        -- Same for insert mode (insert_mappings): keep i_CTRL-\_CTRL-O/N.
+        for _, lhs in ipairs({ [[<C-\><C-o>]], [[<C-\><C-n>]] }) do
+            vim.keymap.set("i", lhs, lhs, { desc = "built-in " .. lhs })
+        end
+    end,
 }
