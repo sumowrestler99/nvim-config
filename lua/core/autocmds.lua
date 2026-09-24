@@ -71,7 +71,8 @@ return function() -- This function is called by init.lua
             local initial_buf_name = vim.api.nvim_buf_get_name(0)
             local initial_file_path = vim.fn.expand("%:p")
             if not string.match(initial_buf_name, "gdrive") and vim.fn.isdirectory(initial_file_path) ~= 0 then
-                vim.cmd("Neotree toggle")
+                -- Rooted at the directory argument, not the cwd.
+                vim.cmd.Neotree({ "toggle", "dir=" .. initial_file_path })
             end
         end,
     })
