@@ -39,6 +39,12 @@ end, { noremap = true, silent = true, desc = "Toggle undotree" })
 -- typed \p waited out 'timeoutlen' and a literal \pi ran :PasteImage.
 map("n", "<leader>pi", "<cmd>PasteImage<cr>", { noremap = true, silent = true, desc = "Paste image" })
 
+-- Comments are Neovim's built-in gc/gcc (:h commenting). <leader>c<Space>
+-- keeps NERDCommenter's toggle; its other \c* maps (\cs, \cu, \cy, \c$, \cA)
+-- have no built-in equivalent and are not recreated.
+map("n", "<leader>c<Space>", "gcc", { remap = true, desc = "Toggle comment (line)" })
+map("x", "<leader>c<Space>", "gc",  { remap = true, desc = "Toggle comment (selection)" })
+
 -- Toggle tab width between 2 and 4
 map("n", "<F4>", function()
     local width = vim.opt.tabstop:get() == 4 and 2 or 4
