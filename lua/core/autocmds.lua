@@ -69,6 +69,14 @@ return function() -- This function is called by init.lua
         end,
     })
 
+    -- No persistent undo for scratch and secret files: an undo file is a
+    -- full copy of the edit history, kept in stdpath('state')/undo.
+    vim.api.nvim_create_autocmd("BufWritePre", {
+        group    = vim.api.nvim_create_augroup("NoUndoFile", { clear = true }),
+        pattern  = { "/tmp/*", "/private/tmp/*", "/dev/shm/*", "*.gpg", "*.asc", "*.env", "*/.ssh/*" },
+        callback = function(args) vim.bo[args.buf].undofile = false end,
+    })
+
     -- Auto-resize splits when terminal is resized
     vim.api.nvim_create_autocmd("VimResized", {
         group    = vim.api.nvim_create_augroup("ResizeSplits", { clear = true }),
