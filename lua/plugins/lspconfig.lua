@@ -154,17 +154,26 @@ return {
         -- .luarc.json still wins for the keys it declares (runtime.version,
         -- diagnostics.globals, workspace.checkThirdParty); it deliberately no
         -- longer declares workspace.library so this takes effect.
+        --
+        -- Only when the workspace IS this config, though: any other Lua project
+        -- would otherwise index the Neovim runtime and accept `vim.*` as
+        -- defined. The mutation is in place for the reason given at jsonls
+        -- below. nvim-lspconfig's lua_ls config always has a `settings` table.
         vim.lsp.config('lua_ls', {
-            settings = {
-                Lua = {
-                    workspace = {
-                        library = {
-                            vim.env.VIMRUNTIME .. '/lua',
-                            vim.fn.stdpath('data') .. '/lazy/lazy.nvim/lua',
-                        },
+            before_init = function(_, config)
+                local root = config.root_dir and vim.uv.fs_realpath(config.root_dir)
+                if not root or root ~= vim.uv.fs_realpath(vim.fn.stdpath('config')) then
+                    return
+                end
+                local lua = config.settings.Lua or {}
+                config.settings.Lua = lua
+                lua.workspace = vim.tbl_deep_extend('force', lua.workspace or {}, {
+                    library = {
+                        vim.env.VIMRUNTIME .. '/lua',
+                        vim.fn.stdpath('data') .. '/lazy/lazy.nvim/lua',
                     },
-                },
-            },
+                })
+            end,
         })
 
         -- SchemaStore's catalog costs ~6 ms to parse, and this spec loads for
