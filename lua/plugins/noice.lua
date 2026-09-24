@@ -46,14 +46,18 @@ return {
             lsp_doc_border        = true,  -- border on hover docs and signature help
         },
 
-        -- Suppress common low-signal messages
+        -- Suppress common low-signal messages.
+        --
+        -- `kind` is the ext_messages kind Neovim sends (doc/api-ui-events.txt,
+        -- "msg_show"), compared exactly (noice/message/filter.lua:106-110).
+        -- `find` is a case-sensitive Lua pattern.
         routes = {
-            -- Hide "N lines written" write confirmations
-            { filter = { event = "msg_show", kind = "", find = "written" },        opts = { skip = true } },
-            -- Hide search wrap messages
-            { filter = { event = "msg_show", kind = "", find = "search hit" },     opts = { skip = true } },
-            -- Hide "already at newest/oldest change" undo messages
-            { filter = { event = "msg_show", kind = "", find = "already at" },     opts = { skip = true } },
+            -- Hide '"file" 3L, 20B written' write confirmations
+            { filter = { event = "msg_show", kind = "bufwrite",     find = "written" },    opts = { skip = true } },
+            -- Hide "search hit BOTTOM, continuing at TOP" wrap warnings
+            { filter = { event = "msg_show", kind = "wmsg",         find = "search hit" }, opts = { skip = true } },
+            -- Hide "Already at newest/oldest change"
+            { filter = { event = "msg_show", kind = { "undo", "" }, find = "lready at" },  opts = { skip = true } },
         },
     },
 
