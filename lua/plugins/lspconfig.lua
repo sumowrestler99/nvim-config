@@ -68,9 +68,12 @@ return {
 
                 vim.keymap.set('n', 'gD',         vim.lsp.buf.declaration,    bufopts)
                 vim.keymap.set('n', 'gd',         vim.lsp.buf.definition,     bufopts)
-                vim.keymap.set('n', 'K',          vim.lsp.buf.hover,          bufopts)
+                -- hover and signature_help are looked up when pressed: noice
+                -- replaces both at VeryLazy (noice/lsp/init.lua:19-26), and a
+                -- buffer that attached earlier would keep the originals.
+                vim.keymap.set('n', 'K',          function() vim.lsp.buf.hover() end,          bufopts)
                 vim.keymap.set('n', 'gi',         vim.lsp.buf.implementation, bufopts)
-                vim.keymap.set('n', '<C-k>',      vim.lsp.buf.signature_help, bufopts)
+                vim.keymap.set('n', '<C-k>',      function() vim.lsp.buf.signature_help() end, bufopts)
                 vim.keymap.set('n', '<space>D',   vim.lsp.buf.type_definition,bufopts)
                 vim.keymap.set('n', '<space>rn',  vim.lsp.buf.rename,         bufopts)
                 vim.keymap.set('n', '<space>ca',  vim.lsp.buf.code_action,    bufopts)
