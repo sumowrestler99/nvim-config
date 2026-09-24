@@ -37,14 +37,9 @@ return {
             group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
             callback = function(ev)
                 local bufnr = ev.buf
-                local bufname = vim.api.nvim_buf_get_name(bufnr)
-                if bufname:match("%.cint$") then
-                    local client_id = ev.data and ev.data.client_id
-                    if client_id then
-                        vim.lsp.buf_detach_client(bufnr, client_id)
-                    end
-                    return
-                end
+                -- No .cint check needed: init.lua maps .cint to c, and the
+                -- root_dir functions of the servers that serve c decline those
+                -- files, so no client attaches to them in the first place.
 
                 local client = vim.lsp.get_client_by_id(ev.data.client_id)
                 if not client then return end
