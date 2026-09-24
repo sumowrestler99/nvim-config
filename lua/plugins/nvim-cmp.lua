@@ -128,10 +128,14 @@ return {
                         cmp.complete()
                     end
                 end, { 'i', 's' }),
+                -- locally_jumpable, matching <Tab>. Plain jumpable(-1) omits
+                -- the in_snippet() check (LuaSnip init.lua:505-507), so S-Tab
+                -- anywhere in the buffer jumped back into a snippet the cursor
+                -- had already left.
                 ['<S-Tab>'] = cmp.mapping(function(fallback)
                     if cmp.visible() then
                         cmp.select_prev_item(select_opts)
-                    elseif luasnip.jumpable(-1) then
+                    elseif luasnip.locally_jumpable(-1) then
                         luasnip.jump(-1)
                     else
                         fallback()
