@@ -64,7 +64,12 @@ return {
     dependencies = dependencies,
 
     config = function()
-        require('luasnip.loaders.from_vscode').lazy_load()
+        -- friendly-snippets is the only snippet collection installed. With no
+        -- `paths`, every package.json on 'runtimepath' is read and each one
+        -- that is not a snippet collection logs a warning, every session.
+        require('luasnip.loaders.from_vscode').lazy_load({
+            paths = { require('lazy.core.config').plugins['friendly-snippets'].dir },
+        })
 
         vim.opt.completeopt = { 'menu', 'menuone', 'noselect' }
 
