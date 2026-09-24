@@ -14,6 +14,14 @@ return {
         changedelete = { text = '▎' },
         untracked    = { text = '▎' },
       },
+      signs_staged = {
+        add          = { text = '▎' },
+        change       = { text = '▎' },
+        delete       = { text = '' },
+        topdelete    = { text = '' },
+        changedelete = { text = '▎' },
+        untracked    = { text = '▎' },
+      },
       signcolumn = true,  -- Toggle with `:Gitsigns toggle_signs`
       numhl      = false, -- Toggle with `:Gitsigns toggle_numhl`
       linehl     = false, -- Toggle with `:Gitsigns toggle_linehl`
@@ -74,7 +82,7 @@ return {
         -- undo_stage_hunk is deprecated. With signs_staged_enable (default on)
         -- stage_hunk on an already-staged hunk unstages it, so this is the
         -- documented replacement. Kept under <leader>hu for muscle memory.
-        map('n', '<leader>hu', gs.stage_hunk,        'Unstage hunk')
+        map('n', '<leader>hu', gs.stage_hunk,        'Toggle stage (alias of \\hs)')
         map('n', '<leader>hU', gs.reset_buffer_index,'Unstage buffer')
         map('v', '<leader>hs', function()
           gs.stage_hunk { vim.fn.line('.'), vim.fn.line('v') }
