@@ -14,7 +14,7 @@ return {
       { "gra",   mode = { "n", "x" }, desc = "LSP Code Action" },
       { "gri",   desc = "LSP Implementation" },
       { "grt",   desc = "LSP Type Definition" },
-      { "grx",   desc = "LSP Code Action (source)" },
+      { "grx",   desc = "LSP CodeLens Run" },
       { "gO",    desc = "LSP Document Symbols" },
       { "K",     desc = "LSP Hover",             icon = { icon = "󰋖", color = "cyan"   } },
       { "<C-k>", desc = "LSP Signature Help",    icon = { icon = "󰊕", color = "cyan"   } },
