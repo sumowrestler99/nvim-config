@@ -9,6 +9,10 @@ return {
     require("bufferline").setup {
       options = {
         separator_style = "padded_slant",
+        -- The defaults are "bdelete! %d", which throws away unsaved changes
+        -- on a click. Snacks.bufdelete asks first and keeps the layout.
+        close_command       = function(n) Snacks.bufdelete(n) end,
+        right_mouse_command = function(n) Snacks.bufdelete(n) end,
         diagnostics = "nvim_lsp",
         diagnostics_indicator = function(count, level)
           local icons = {
