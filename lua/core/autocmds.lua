@@ -55,7 +55,14 @@ return function() -- This function is called by init.lua
     -- Auto-resize splits when terminal is resized
     vim.api.nvim_create_autocmd("VimResized", {
         group    = vim.api.nvim_create_augroup("ResizeSplits", { clear = true }),
-        callback = function() vim.cmd("tabdo wincmd =") end,
+        -- :tabdo leaves the LAST tab current, so go back to where we were.
+        callback = function()
+            local current = vim.api.nvim_get_current_tabpage()
+            vim.cmd("tabdo wincmd =")
+            if vim.api.nvim_tabpage_is_valid(current) then
+                vim.api.nvim_set_current_tabpage(current)
+            end
+        end,
     })
 
     vim.api.nvim_create_autocmd("VimEnter", {
