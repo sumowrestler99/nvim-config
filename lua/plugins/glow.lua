@@ -1,7 +1,7 @@
 return {
     "ellisonleao/glow.nvim",
-    -- Load glow.nvim only when a buffer with 'markdown' or 'md' filetype is opened.
-    ft = { "markdown", "md" },
+    -- :Glow is its only entry point, so there is nothing to load for until
+    -- it is run.
     cmd = "Glow",
     opts = {}
 }
