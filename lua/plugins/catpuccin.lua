@@ -62,21 +62,10 @@ return {
                     enabled = false,
                     colored_indent_levels = false,
                 },
-                native_lsp = {
-                    enabled = true,
-                    virtual_text = {
-                        errors = { "italic" },
-                        hints = { "italic" },
-                        warnings = { "italic" },
-                        information = { "italic" },
-                    },
-                    underlines = {
-                        errors = { "undercurl" },
-                        hints = { "undercurl" },
-                        warnings = { "undercurl" },
-                        information = { "undercurl" },
-                    },
-                },
+                -- Diagnostic styling: catppuccin's top-level `lsp_styles`
+                -- defaults (italic virtual text) are what this wants; the
+                -- undercurls come from core/autocmds.lua. The old
+                -- integrations.native_lsp key is no longer read.
 
                 -- For more plugins integrations please scroll down (https://github.com/catppuccin/nvim#integrations)
             },
