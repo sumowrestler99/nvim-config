@@ -53,7 +53,8 @@ vim.list_extend(dependencies, extra.dependencies or {})
 
 -- cmp breaks ties by position in this list, so machine-local sources sit
 -- between nvim_lsp and luasnip to preserve the original ranking.
-local sources = { { name = 'nvim_lsp', keyword_length = 2 } }
+-- nvim_lsp completes from the first character, luasnip from the second.
+local sources = { { name = 'nvim_lsp', keyword_length = 1 } }
 vim.list_extend(sources, extra.sources or {})
 vim.list_extend(sources, { { name = 'luasnip', keyword_length = 2 } })
 
