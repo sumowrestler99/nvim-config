@@ -31,11 +31,40 @@
 --   tmux   removed from main's parser list upstream. No loss in practice --
 --          'tmux' is not in this spec's `ft`, so the plugin never loaded for
 --          those buffers anyway.
+--
+-- tcl is managed here too. It used to come from a lewis6991/tree-sitter-tcl
+-- dependency, but that never produced a parser on 'runtimepath' -- it only
+-- contributed a competing, non-`extends` queries/tcl/ set and an ftplugin that
+-- called vim.treesitter.start() before any parser existed. nvim-treesitter's
+-- own tcl entry is the same grammar (transferred to tree-sitter-grammars).
 local ensure_installed = {
     'bash', 'c', 'cpp', 'csv', 'diff', 'html', 'json', 'lua', 'make',
-    'markdown', 'markdown_inline', 'perl', 'python', 'starlark', 'textproto',
-    'vim', 'vimdoc', 'yaml',
+    'markdown', 'markdown_inline', 'perl', 'python', 'starlark', 'tcl',
+    'textproto', 'vim', 'vimdoc', 'yaml',
 }
+
+-- Languages fetched the first time a buffer of that language is opened,
+-- rather than up front.
+local on_demand = { 'css', 'go', 'java', 'javascript', 'rust', 'typescript' }
+
+-- The plugin's `ft` trigger, derived from the two lists above so they cannot
+-- drift apart again. They had: eight installed parsers (csv diff make perl
+-- starlark textproto vim vimdoc) belonged to filetypes that never loaded the
+-- plugin, so they were never used for highlighting.
+--
+-- Only languages whose filetypes differ from their own name need an entry.
+-- markdown_inline is injected into markdown and has no filetype of its own.
+local lang_filetypes = {
+    bash            = { 'bash', 'sh' },
+    markdown_inline = {},
+    vimdoc          = { 'help' },
+}
+local filetypes = {}
+for _, langs in ipairs({ ensure_installed, on_demand }) do
+    for _, lang in ipairs(langs) do
+        vim.list_extend(filetypes, lang_filetypes[lang] or { lang })
+    end
+end
 
 --- Selects a treesitter node as a charwise visual selection.
 ---
@@ -158,17 +187,9 @@ return {
     branch = 'main',
     build = ':TSUpdate',
     dependencies = {
-        {
-            "lewis6991/tree-sitter-tcl",
-            build = "make",
-        },
         "nvim-treesitter/nvim-treesitter-textobjects",
     },
-    ft = {
-        "lua", "python", "typescript", "javascript",
-        "html", "css", "json", "yaml", "markdown",
-        "go", "rust", "bash", "sh", "c", "cpp", "java", "tcl",
-    },
+    ft = filetypes,
     config = function()
         local ts = require('nvim-treesitter')
         ts.setup()
