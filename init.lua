@@ -12,11 +12,6 @@ vim.filetype.add({
   extension = {
     cint = 'c',
   },
-  filename = {
-    ['launch.json'] = 'jsonc',
-    ['tasks.json'] = 'jsonc',
-    ['settings.json'] = 'jsonc',
-  },
   pattern = {
     ['.*/%.vscode/.*%.json'] = 'jsonc',
   },
