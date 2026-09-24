@@ -1,10 +1,10 @@
 return {
   'folke/which-key.nvim',
   event = "VeryLazy",
-  config = function()
-    local wk = require("which-key")
-
-    wk.add({
+  -- Passed as opts so lazy calls setup(); a bare wk.add() only queues specs
+  -- and left setup() to which-key's 500 ms fallback timer.
+  opts = {
+    spec = {
       -- LSP g-prefixed keys
       { "gd",    desc = "LSP Definition",       icon = { icon = "󰌹", color = "blue"   } },
       { "gD",    desc = "LSP Declaration",       icon = { icon = "󰌹", color = "grey"   } },
@@ -60,7 +60,7 @@ return {
       { "]d", desc = "Next Diagnostic", icon = { icon = "󰒕", color = "yellow" } },
 
       -- <leader> groups
-      { "<leader>u",  group = "Undo",      icon = { icon = "󰑖", color = "yellow" } },
+      { "<leader>u",  group = "UI / Undo", icon = { icon = "󰑖", color = "yellow" } },
       { "<leader>ut", desc = "Toggle undotree" },
       { "<leader>ul", desc = "Toggle layout guides (clean mode)", icon = { icon = "󰒉", color = "grey" } },
 
@@ -83,6 +83,11 @@ return {
       { "<leader>sa", desc = "Swap parameter next",    icon = { icon = "󰓡", color = "purple" } },
       { "<leader>sA", desc = "Swap parameter previous", icon = { icon = "󰓡", color = "purple" } },
 
+      { "<leader>a",  group = "Avante (AI)", mode = { "n", "v" }, icon = { icon = "󰚩", color = "purple" } },
+      { "<leader>c",  group = "Comment / code assistants", mode = { "n", "v" } },
+      { "<leader>h",  group = "Git hunks",   icon = { icon = "󰊢", color = "orange" } },
+      { "<leader>t",  group = "Git toggles", icon = { icon = "󰊢", color = "orange" } },
+      { "<leader>p",  group = "Paste" },
       { "<leader>pi", desc = "Paste image",             icon = { icon = "󰋩", color = "cyan"   } },
 
       { "<leader>n",  group = "Neogen",    icon = { icon = "󰆉", color = "cyan"   } },
@@ -141,6 +146,6 @@ return {
 
       -- Function keys
       { "<F4>", desc = "Toggle tab width 2/4" },
-    })
-  end,
+    },
+  },
 }
