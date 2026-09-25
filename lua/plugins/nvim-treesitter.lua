@@ -250,13 +250,6 @@ return {
             installed[lang] = true
         end
 
-        -- Only install what is genuinely missing.
-        --
-        -- `install()` is NOT a cheap no-op for already-present parsers: it
-        -- skips the download, but it first calls reload_parsers(), which nils
-        -- and re-parses the 2,346-line parsers.lua and re-fires `User TSUpdate`
-        -- -- repeating the work get_available() above has already done. In the
-        -- steady state nothing is missing, so the call is skipped entirely.
         -- Install tasks still in flight, by language. A buffer whose parser is
         -- on its way waits for that task rather than queueing a second
         -- install: a duplicate request blocks in vim.wait() until the first
@@ -285,6 +278,13 @@ return {
             end
         end
 
+        -- Only install what is genuinely missing.
+        --
+        -- `install()` is NOT a cheap no-op for already-present parsers: it
+        -- skips the download, but it first calls reload_parsers(), which nils
+        -- and re-parses the 2,346-line parsers.lua and re-fires `User TSUpdate`
+        -- -- repeating the work get_available() above has already done. In the
+        -- steady state nothing is missing, so the call is skipped entirely.
         local missing = vim.tbl_filter(function(lang)
             return available[lang] and not installed[lang]
         end, ensure_installed)
