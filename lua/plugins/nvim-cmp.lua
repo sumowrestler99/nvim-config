@@ -84,6 +84,12 @@ return {
         end
 
         cmp.setup({
+            -- nvim-cmp's default (prompt buffers, macros) plus snacks bigfile,
+            -- whose vim.b.completion = false only blink.cmp reads.
+            enabled = function()
+                if vim.bo.filetype == "bigfile" then return false end
+                return require("cmp.config.default")().enabled()
+            end,
             snippet = {
                 expand = function(args)
                     luasnip.lsp_expand(args.body)

@@ -52,6 +52,9 @@ return {
         col = 1
       },
       on_attach = function(bufnr)
+        -- snacks bigfile (incl. minified files with few, very long lines,
+        -- which max_file_length misses). false = do not attach.
+        if vim.bo[bufnr].filetype == 'bigfile' then return false end
         local gs = package.loaded.gitsigns
 
         local function map(mode, lhs, rhs, desc, opts)
