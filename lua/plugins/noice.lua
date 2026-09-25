@@ -49,7 +49,7 @@ return {
         -- Suppress common low-signal messages.
         --
         -- `kind` is the ext_messages kind Neovim sends (doc/api-ui-events.txt,
-        -- "msg_show"), compared exactly (noice/message/filter.lua:106-110).
+        -- "msg_show"), compared exactly (noice/message/filter.lua:58-62).
         -- `find` is a case-sensitive Lua pattern.
         routes = {
             -- Hide '"file" 3L, 20B written' write confirmations
