@@ -27,7 +27,8 @@ vim.opt.incsearch = true          -- Show partial matches while typing search pa
 
 -- Backup and swap files
 vim.opt.backup = false            -- Do not create backup files
-vim.opt.writebackup = false       -- Do not create a backup file when writing
+-- writebackup stays on (default): with no swap file either, a failed write
+-- would otherwise lose both the file and the edits (:h 'writebackup').
 vim.opt.swapfile = false          -- Do not create swap files
 
 -- UI enhancements
