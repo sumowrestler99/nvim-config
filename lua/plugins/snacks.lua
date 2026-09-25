@@ -3,6 +3,24 @@ return {
         'folke/snacks.nvim',
         lazy = false,
         priority = 1000,
+        init = function()
+            -- snacks' bigfile detector returns nothing for a buffer whose ft
+            -- is already "bigfile" (so its setup can look up the real ft).
+            -- A reload (:edit, :checktime, autoread) then re-detected the
+            -- file as its real ft, with treesitter, LSP, cmp, gitsigns and
+            -- ufo all back on. Clear the ft, without FileType autocmds,
+            -- before the re-read so detection starts fresh.
+            vim.api.nvim_create_autocmd("BufReadPre", {
+                group    = vim.api.nvim_create_augroup("local_bigfile_reload", { clear = true }),
+                callback = function(ev)
+                    if vim.bo[ev.buf].filetype == "bigfile" then
+                        vim.api.nvim_buf_call(ev.buf, function()
+                            vim.cmd("noautocmd setlocal filetype=")
+                        end)
+                    end
+                end,
+            })
+        end,
         ---@type snacks.Config
         opts = {
             -- Same threshold as nvim-treesitter.lua's highlight guard. Files
