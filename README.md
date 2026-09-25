@@ -152,7 +152,7 @@ Optional:
 | `FileType` (`fugitiveblame`) | Blank winbar so the blame window lines up with the barbecue winbar |
 
 ### OSC52 Clipboard
-Yanking (`y`) into the unnamed, `+` or `*` register automatically copies to the local clipboard via OSC52; deletes, changes and yanks replayed by a macro do not. This works over SSH without any terminal round-trip. Paste (`p`) uses nvim's internal register.
+Yanking (`y`) into the unnamed register automatically copies to the local clipboard via OSC52; deletes, changes, yanks replayed by a macro and yanks over 1 MB do not. `"+y` / `"*y` go through Neovim's clipboard provider, or through the same OSC52 copy when no provider is available. This works over SSH without any terminal round-trip. Paste (`p`) uses nvim's internal register.
 
 ---
 

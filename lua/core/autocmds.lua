@@ -64,7 +64,13 @@ return function() -- This function is called by init.lua
             local ev = vim.v.event
             if ev.operator ~= "y" then return end
             if ev.regname ~= "" and ev.regname ~= "+" and ev.regname ~= "*" then return end
+            -- A clipboard provider already copies "+ and "* yanks.
+            if ev.regname ~= "" and vim.fn.has("clipboard") == 1 then return end
             if vim.fn.reg_executing() ~= "" then return end
+            -- Base64 of the whole yank goes to the terminal; skip huge ones.
+            local bytes = 0
+            for _, line in ipairs(ev.regcontents) do bytes = bytes + #line + 1 end
+            if bytes > 1024 * 1024 then return end
             require('vim.ui.clipboard.osc52').copy('+')(ev.regcontents)
         end,
     })
