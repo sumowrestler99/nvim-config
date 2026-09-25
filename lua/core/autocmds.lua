@@ -99,7 +99,10 @@ return function() -- This function is called by init.lua
             local initial_buf_name = vim.api.nvim_buf_get_name(0)
             local initial_file_path = vim.fn.expand("%:p")
             if not string.match(initial_buf_name, "gdrive") and vim.fn.isdirectory(initial_file_path) ~= 0 then
-                -- Rooted at the directory argument, not the cwd.
+                -- Rooted at the directory argument, not the cwd. neo-tree's
+                -- filesystem.bind_to_cwd (default true) also makes it the
+                -- tab's cwd, as `nvim <dir>` implies. To keep the shell's
+                -- cwd instead, set bind_to_cwd = false in neo-tree.lua.
                 vim.cmd.Neotree({ "toggle", "dir=" .. initial_file_path })
             end
         end,
