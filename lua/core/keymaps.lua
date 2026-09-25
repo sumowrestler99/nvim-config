@@ -4,10 +4,10 @@
 local map = vim.keymap.set
 
 -- Exit insert mode with jk
-map("i", "jk", "<ESC>", { noremap = true, silent = true, desc = "Exit Insert Mode" })
+map("i", "jk", "<ESC>", { silent = true, desc = "Exit Insert Mode" })
 
 -- Save file
-map("n", "<leader>w", "<cmd>w<cr>", { noremap = true, desc = "Save Current Buffer" })
+map("n", "<leader>w", "<cmd>w<cr>", { desc = "Save Current Buffer" })
 
 -- Diagnostic keymaps (global, always available)
 --
@@ -17,8 +17,8 @@ map("n", "<leader>w", "<cmd>w<cr>", { noremap = true, desc = "Save Current Buffe
 -- single diagnostic. Everything else about them was byte-for-byte identical,
 -- so deleting them is a pure gain. ]D / [D / <C-W>d come free with the
 -- built-ins too.
-map('n', '<space>e', vim.diagnostic.open_float,  { noremap = true, silent = true, desc = "Diagnostic float" })
-map('n', '<space>q', vim.diagnostic.setloclist,  { noremap = true, silent = true, desc = "Diagnostic loclist" })
+map('n', '<space>e', vim.diagnostic.open_float,  { silent = true, desc = "Diagnostic float" })
+map('n', '<space>q', vim.diagnostic.setloclist,  { silent = true, desc = "Diagnostic loclist" })
 
 -- Undotree, from the 'dist' pack that Neovim 0.12 ships opt-in.
 --
@@ -33,11 +33,11 @@ map('n', '<space>q', vim.diagnostic.setloclist,  { noremap = true, silent = true
 map("n", "<leader>ut", function()
     vim.cmd.packadd("nvim.undotree")
     require("undotree").open({ command = "rightbelow 30vnew" })
-end, { noremap = true, silent = true, desc = "Toggle undotree" })
+end, { silent = true, desc = "Toggle undotree" })
 
 -- Paste image from clipboard (img-clip). Normal mode only: in insert mode a
 -- typed \p waited out 'timeoutlen' and a literal \pi ran :PasteImage.
-map("n", "<leader>pi", "<cmd>PasteImage<cr>", { noremap = true, silent = true, desc = "Paste image" })
+map("n", "<leader>pi", "<cmd>PasteImage<cr>", { silent = true, desc = "Paste image" })
 
 -- Comments are Neovim's built-in gc/gcc (:h commenting). <leader>c<Space>
 -- keeps NERDCommenter's toggle; its other \c* maps (\cs, \cu, \cy, \c$, \cA)
@@ -52,7 +52,7 @@ map("n", "<F4>", function()
     vim.opt.shiftwidth = width
     vim.opt.softtabstop = width
     vim.notify("Tab width: " .. width, vim.log.levels.INFO)
-end, { noremap = true, silent = true, desc = "Toggle tab width 2/4" })
+end, { silent = true, desc = "Toggle tab width 2/4" })
 
 -- --- Other common keymaps you might want to add ---
 -- map("n", "<leader>pv", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle NvimTree" })
@@ -160,5 +160,5 @@ map("n", "<leader>ul", function()
 
     vim.notify(clean and "Layout Guides: DISABLED (Clean Mode)" or "Layout Guides: ENABLED",
         vim.log.levels.INFO)
-end, { noremap = true, silent = true, desc = "Toggle Layout Guides (Clean Mode)" })
+end, { silent = true, desc = "Toggle Layout Guides (Clean Mode)" })
 
