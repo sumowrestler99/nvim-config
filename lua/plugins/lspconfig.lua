@@ -53,7 +53,7 @@ return {
                 end
 
                 -- Not while <leader>ul clean mode is on (see core/keymaps.lua).
-                if vim.lsp.inlay_hint and client.server_capabilities.inlayHintProvider
+                if client.server_capabilities.inlayHintProvider
                     and not vim.g.clean_mode then
                     local uri = vim.uri_from_bufnr(bufnr)
                     if string.match(uri, "^file:") then
