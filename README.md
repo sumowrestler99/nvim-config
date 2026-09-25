@@ -89,7 +89,7 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 Optional:
 - `gdb` — cpptools debugging (`miDebuggerPath = "gdb"`)
 - `bashdb` — Bash debugging
-- `glow` — `:Glow` markdown preview. Without it glow.nvim downloads a release binary into `~/.local/bin`
+- `glow` — `:Glow` markdown preview. Without it `:Glow` is not defined (glow.nvim would otherwise download an unverified release binary)
 - `claude` CLI — claude-code.nvim
 - `cargo` — only if avante's prebuilt native libraries have to be rebuilt
 
