@@ -5,7 +5,6 @@ parser/
 # lazy-lock.json is intentionally kept — it pins plugin versions
 
 # Local machine overrides (not committed)
-lua/local.lua
 lua/local/
 
 # Backup files
