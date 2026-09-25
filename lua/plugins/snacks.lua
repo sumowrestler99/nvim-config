@@ -5,7 +5,9 @@ return {
         priority = 1000,
         ---@type snacks.Config
         opts = {
-            bigfile   = { enabled = true },
+            -- Same threshold as nvim-treesitter.lua's highlight guard. Files
+            -- over it get ft=bigfile, which ufo, cmp and gitsigns also skip.
+            bigfile   = { enabled = true, size = 500 * 1024 },
             indent    = {
                 enabled = true,
                 animate = {
