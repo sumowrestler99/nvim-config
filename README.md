@@ -14,9 +14,9 @@ A full-featured, opinionated Neovim 0.12+ configuration built for C/C++, Swift, 
 - **Code folding** — nvim-ufo with virtual text showing folded line count, custom status column
 - **Persistent undo** — full undo history survives session restarts
 - **OSC52 clipboard** — yank to local clipboard transparently over SSH, no clipboard tool required on the remote
-- **Debugging** — nvim-dap with codelldb (LLDB), cpptools (gdbserver), and debugpy (Python); DAP UI auto-opens on session start
+- **Debugging** — nvim-dap with codelldb (LLDB), cpptools (gdbserver), debugpy (Python) and bash-debug-adapter (Bash via bashdb); DAP UI auto-opens on session start
 - **Snippet support** — LuaSnip with VSCode-compatible friendly-snippets
-- **Image paste** — paste images from clipboard into buffers via img-clip (`<leader>pi`)
+- **Image paste** — paste images from clipboard into buffers via img-clip (`<leader>pi`). Local sessions only: img-clip reads the clipboard of the machine nvim runs on (pngpaste, wl-paste or xclip), so it does not work over SSH
 - **Annotation generation** — Neogen generates docstrings/doxygen comments (`<leader>nf`)
 - **Todo tracking** — todo-comments.nvim highlights and navigates TODO/FIXME/NOTE/HACK/WARN across the codebase
 - **Terminal** — toggleterm floating terminal (`<C-\>`)
@@ -36,7 +36,7 @@ A full-featured, opinionated Neovim 0.12+ configuration built for C/C++, Swift, 
 - `GEMINI_API_KEY` is set in your shell environment for Avante AI features
 - Tab width is **4 spaces** by default; toggle to 2 with `<F4>`
 - The **leader key** is `\` (backslash)
-- Plugins load **lazily** except catppuccin, snacks.nvim and barbecue.nvim — the rest have zero startup cost and only load on first use
+- Only catppuccin, snacks.nvim and barbecue.nvim (with its nvim-navic and nvim-web-devicons dependencies) load during startup. bufferline, lualine, noice, nvim-notify, smear-cursor and which-key load on `VeryLazy`, just after the first screen is drawn. Everything else loads on first use (command, key, filetype or buffer event)
 - Plugin versions are **pinned** via `lazy-lock.json` for reproducible installs
 
 ---
@@ -58,11 +58,12 @@ nvim
 
 On first launch:
 1. lazy.nvim bootstraps itself and downloads all plugins
-2. Treesitter parsers are built (`:TSUpdate` runs automatically). This needs the `tree-sitter` CLI
-   (0.26.1 or later) and a C compiler on `$PATH`
+2. Treesitter parsers are built the first time a supported file is opened (the `:TSUpdate` build hook
+   only updates parsers that are already installed). This needs the `tree-sitter` CLI (0.26.1 or later)
+   and a C compiler on `$PATH`
 3. Mason auto-installs LSP servers (`clangd`, `lua_ls`, `bashls`, `pyright`, `marksman`, `jsonls`, `yamlls`) the first time a
    supported file is opened, and debug adapters (`codelldb`, `cpptools`, `debugpy`, `bash-debug-adapter`) the first
-   time a debug key is used. `checkmake` is not auto-installed (`:MasonInstall checkmake`)
+   time a debug key or `:Dap*` command is used. `checkmake` is not auto-installed (`:MasonInstall checkmake`)
 4. Restart nvim once everything finishes installing
 
 **Set your Gemini API key** (required for Avante AI features):
@@ -80,7 +81,17 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 - A [Nerd Font](https://www.nerdfonts.com/) (icons throughout UI) — [Iosevka Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Iosevka) recommended
 - `git`, `curl`, `make`, `clang` or `gcc`
 - `tree-sitter` CLI 0.26.1+ (builds Treesitter parsers)
+- `rg` (ripgrep) — Snacks grep pickers and todo search
+- Node.js + npm, python3 (with `venv`) and `unzip` — used by Mason to install pyright, bashls, jsonls,
+  yamlls, debugpy and the adapter archives
 - `GEMINI_API_KEY` environment variable (for Avante AI assistant)
+
+Optional:
+- `gdb` — cpptools debugging (`miDebuggerPath = "gdb"`)
+- `bashdb` — Bash debugging
+- `glow` — `:Glow` markdown preview. Without it glow.nvim downloads a release binary into `~/.local/bin`
+- `claude` CLI — claude-code.nvim
+- `cargo` — only if avante's prebuilt native libraries have to be rebuilt
 
 ---
 
@@ -91,12 +102,14 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 ├── init.lua                  # Entry point: loads core modules and lazy.nvim
 ├── lua/
 │   ├── core/
-│   │   ├── options.lua       # Editor options, LSP diagnostics config
+│   │   ├── options.lua       # Editor options, diagnostic display config
 │   │   ├── keymaps.lua       # Global keymaps
-│   │   ├── autocmds.lua      # Autocommands (yank, cursor restore, resize)
+│   │   ├── autocmds.lua      # Autocommands (yank/OSC52, cursor restore, resize, no-undo for secrets, neo-tree on dir, diagnostic highlights)
 │   │   ├── globals.lua       # Global variables
 │   │   └── local.lua         # Optional loader for gitignored machine-local overrides
-│   └── plugins/              # One file per plugin, loaded via lazy.nvim
+│   └── plugins/              # One file per plugin (or plugin group), loaded via lazy.nvim
+├── lazy-lock.json            # Pinned plugin commits
+├── .luarc.json               # lua_ls settings for editing this config
 └── .gitignore
 ```
 
@@ -122,7 +135,7 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 | `timeoutlen` | 500ms | Key sequence timeout |
 | `signcolumn` | yes | Always show sign column |
 | `showmode` | false | Mode shown by lualine/noice instead |
-| color column | 100 (80 for C/C++/Rust) | Vertical line at line length limit via smartcolumn.nvim |
+| color column | 100 (80 for C/C++/Rust) | Vertical line at the length limit, shown only while a visible line exceeds it (smartcolumn.nvim) |
 
 ---
 
@@ -136,6 +149,7 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 | `VimResized` | Auto-equalize split sizes on terminal resize |
 | `VimEnter` (directory arg) | Auto-open neo-tree when nvim is opened on a directory |
 | `ColorScheme` | Re-apply diagnostic underline highlights after theme changes |
+| `FileType` (`fugitiveblame`) | Blank winbar so the blame window lines up with the barbecue winbar |
 
 ### OSC52 Clipboard
 Yanking (`y`) into the unnamed, `+` or `*` register automatically copies to the local clipboard via OSC52; deletes, changes and yanks replayed by a macro do not. This works over SSH without any terminal round-trip. Paste (`p`) uses nvim's internal register.
@@ -191,7 +205,7 @@ Yanking (`y`) into the unnamed, `+` or `*` register automatically copies to the 
 | Normal | `<space>wa` | Add workspace folder |
 | Normal | `<space>wr` | Remove workspace folder |
 | Normal | `<space>wl` | List workspace folders |
-| Visual | `\qf` | Format selected range |
+| Visual | `\qf` | Format selected lines |
 
 ### File Explorer (neo-tree)
 
@@ -212,7 +226,7 @@ Inside the tree: `l`/`h` open/close nodes, `v` open in vsplit, `s` open in split
 | Normal | `[c` | Previous hunk |
 | Normal | `<leader>hs` | Stage hunk (unstages if already staged) |
 | Normal | `<leader>hS` | Stage entire buffer |
-| Normal | `<leader>hu` | Unstage hunk (same as `<leader>hs` on a staged hunk) |
+| Normal | `<leader>hu` | Toggle stage (alias of `<leader>hs`; stages an unstaged hunk) |
 | Normal | `<leader>hU` | Unstage buffer |
 | Normal | `<leader>hr` | Reset hunk |
 | Normal | `<leader>hR` | Reset buffer |
@@ -258,7 +272,7 @@ In the 3-way merge view:
 | `<leader>ff` | Find files |
 | `<leader>fr` | Recent files |
 | `<leader>fg` | Live grep |
-| `<leader>fw` | Grep word under cursor |
+| `<leader>fw` | Grep word under cursor (Normal) / selection (Visual) |
 | `<leader>fs` | LSP symbols |
 | `<leader>fS` | LSP workspace symbols |
 | `<leader>fb` | Buffers |
@@ -361,16 +375,30 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 
 | Key | Action |
 |-----|--------|
-| `<C-\>` | Toggle floating terminal |
+| `<C-\>` | Toggle floating terminal (Normal, Insert and inside the terminal) |
+| `<C-\><C-n>` | Inside the terminal: Terminal-Normal mode (scroll back, yank). `<C-\>` alone toggles after `timeoutlen` |
 
 ### Avante (AI Assistant)
 
-| Key | Action |
-|-----|--------|
-| `<leader>aa` | Ask Avante |
-| `<leader>ae` | Edit selection with Avante (Visual) |
-| `<leader>at` | Toggle Avante sidebar |
-| `<leader>ar` | Refresh Avante |
+| Mode | Key | Action |
+|------|-----|--------|
+| Normal/Visual | `<leader>aa` | Ask Avante |
+| Normal/Visual | `<leader>an` | New ask |
+| Normal/Visual | `<leader>az` | Zen mode |
+| Visual | `<leader>ae` | Edit selection |
+| Normal | `<leader>at` | Toggle sidebar |
+| Normal | `<leader>ar` | Refresh |
+| Normal | `<leader>af` | Focus sidebar |
+| Normal | `<leader>aS` | Stop request |
+| Normal | `<leader>ad` | Toggle debug |
+| Normal | `<leader>aC` | Toggle selection |
+| Normal | `<leader>as` | Toggle suggestion |
+| Normal | `<leader>aR` | Show repo map |
+| Normal | `<leader>a?` | Select model |
+| Normal | `<leader>ah` | Select history |
+| Normal | `<leader>aM` | Select ACP model |
+| Normal | `<leader>am` | Select ACP mode |
+| Normal | `<leader>aB` | Add all buffers |
 
 ### Claude Code
 
@@ -394,9 +422,10 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 | [barbecue.nvim](https://github.com/utilyre/barbecue.nvim) | Winbar with LSP breadcrumb symbols (file → class → function) via nvim-navic |
 | [noice.nvim](https://github.com/folke/noice.nvim) | Replaces cmdline, messages, and popupmenu with floating windows. Icons per command type. LSP progress spinner. |
 | [nvim-notify](https://github.com/rcarriga/nvim-notify) | Animated notification popups with icons per level |
-| [snacks.nvim](https://github.com/folke/snacks.nvim) | Indent guides with animation, smooth scrolling, fuzzy picker, `vim.ui.input`/`vim.ui.select` |
+| [snacks.nvim](https://github.com/folke/snacks.nvim) | Indent guides with animation, smooth scrolling, fuzzy picker, `vim.ui.input`/`vim.ui.select`, bigfile and quickfile, buffer delete |
 | [which-key.nvim](https://github.com/folke/which-key.nvim) | Popup showing available keymaps after partial input |
 | [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | Animates cursor movement with a smear trail |
+| [smartcolumn.nvim](https://github.com/m4xshen/smartcolumn.nvim) | Colour column at 100 (80 for C/C++/Rust), shown only when a line exceeds it |
 
 ### File Management
 
@@ -436,7 +465,7 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 
 | Plugin | Purpose |
 |--------|---------|
-| [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | `main` branch; parsers built with the `tree-sitter` CLI. Starts Neovim's built-in highlighting; incremental selection reimplemented in the config. Auto-installs parsers. Highlighting skipped for files >500KB. |
+| [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | `main` branch; parsers built with the `tree-sitter` CLI. Starts Neovim's built-in highlighting; incremental selection reimplemented in the config. Auto-installs parsers. The `cpp` parser is built from the public [smartpde/tree-sitter-cpp-google](https://github.com/smartpde/tree-sitter-cpp-google) fork. Highlighting skipped for files >500KB. |
 | [nvim-treesitter-textobjects](https://github.com/nvim-treesitter/nvim-treesitter-textobjects) | Function/class/parameter/loop/conditional text objects and motions |
 
 ### Git
@@ -468,7 +497,7 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 |--------|---------|
 | [toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim) | Floating terminal (`<C-\>`) |
 | [nvim-dap](https://github.com/mfussenegger/nvim-dap) | Debug Adapter Protocol core |
-| [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui) | DAP UI panels (scopes, breakpoints, stacks, console) |
+| [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui) | DAP UI panels (scopes, breakpoints, stacks, watches, REPL, console) |
 | [nvim-dap-virtual-text](https://github.com/theHamsta/nvim-dap-virtual-text) | Inline variable values during debug sessions |
 | [mason-nvim-dap.nvim](https://github.com/jay-babu/mason-nvim-dap.nvim) | Installs the debug adapters via Mason |
 
@@ -483,7 +512,7 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 
 | Plugin | Purpose |
 |--------|---------|
-| [avante.nvim](https://github.com/yetone/avante.nvim) | AI coding assistant powered by Gemini 2.5 Flash. Sidebar mode, agentic editing (asks before running tools), diff apply. |
+| [avante.nvim](https://github.com/yetone/avante.nvim) | AI coding assistant powered by Gemini 2.5 Flash. Sidebar mode, agentic editing (asks before shell commands and file edits; read-only tools run without a prompt), diff apply. |
 | [claude-code.nvim](https://github.com/greggh/claude-code.nvim) | Claude Code CLI in a terminal window (`<C-,>`) |
 
 ### Built-in Packs (nvim 0.12, loaded with `:packadd` on first use)
@@ -517,10 +546,10 @@ flavour = "macchiato"
 Provider: **Gemini 2.5 Flash** via `GEMINI_API_KEY` environment variable.
 
 - Sidebar opens on the right (35% width)
-- Agentic mode: can read/edit files, but asks for confirmation before each tool runs
+- Agentic mode: can read and edit files. Shell commands and file writes need confirmation; read-only tools (view, ls, grep, glob) do not. *Allow Always* applies for the rest of the session
 - Diff apply is manual (not auto-applied)
 - Visual selection hints suppressed (`selection.hint_display = "none"`)
-- Submit prompt: `<CR>` in input box
+- Submit prompt: `<CR>` in Normal mode or `<C-s>` in Insert mode (in the input box)
 
 ---
 
@@ -542,7 +571,7 @@ Provider: **Gemini 2.5 Flash** via `GEMINI_API_KEY` environment variable.
 | `<Down>` / `<C-n>` | Next item |
 | `<C-u>` | Scroll docs up |
 | `<C-d>` | Scroll docs down |
-| `<Tab>` | Next item / expand snippet / trigger completion |
+| `<Tab>` | Next item / expand or jump forward in snippet / trigger completion after a word character |
 | `<S-Tab>` | Previous item / jump back in snippet |
 
 ---
@@ -582,7 +611,7 @@ Provider: **Gemini 2.5 Flash** via `GEMINI_API_KEY` environment variable.
 
 [lazy.nvim](https://github.com/folke/lazy.nvim) — open with `:Lazy`
 
-- Plugins load lazily by default (on command, keymap, filetype, or event)
+- Each plugin spec declares its own trigger (command, keymap, filetype or event); three plugins are eager (see Assumptions)
 - Plugin lock file: `lazy-lock.json` (committed — pins exact versions)
 - Auto-install on startup if missing
 
