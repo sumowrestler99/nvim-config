@@ -1,7 +1,3 @@
--- Optional machine-local overrides (provider, ACP backend). Empty table when
--- lua/local/avante.lua does not exist.
-local extra = require('core.local').get('avante')
-
 return {
     "yetone/avante.nvim",
     -- Entry points, NOT `event = "VeryLazy"`.
@@ -85,88 +81,94 @@ return {
     },
 
     ---@module 'avante'
-    opts = {
-        mode = "agentic", -- "agentic" | "legacy"
+    -- A function, so lua/local/avante.lua (optional machine-local provider and
+    -- ACP backend, which probes an executable) is read when avante loads, not
+    -- during spec import at every startup. Empty table when it does not exist.
+    opts = function()
+        local extra = require('core.local').get('avante')
+        return {
+            mode = "agentic", -- "agentic" | "legacy"
 
-        -- A machine-local module may point avante at a different backend (for
-        -- example a corp-only CLI exposed over ACP). Without one, fall back to
-        -- the public API-key provider configured below.
-        provider      = extra.provider or "gemini",
-        acp_providers = extra.acp_providers,
+            -- A machine-local module may point avante at a different backend (for
+            -- example a corp-only CLI exposed over ACP). Without one, fall back to
+            -- the public API-key provider configured below.
+            provider      = extra.provider or "gemini",
+            acp_providers = extra.acp_providers,
 
-        providers = {
-            -- Used unless a machine-local module overrides `provider` above.
-            -- Requires GEMINI_API_KEY in the environment.
-            gemini = {
-                -- @see https://ai.google.dev/gemini-api/docs/models/gemini
-                model = "gemini-2.5-flash",
-                -- Sent verbatim as the request body (avante
-                -- providers/init.lua:269-280, providers/gemini.lua:184).
-                -- Top-level temperature/max_tokens are not read by this
-                -- provider.
-                extra_request_body = {
-                    generationConfig = {
-                        temperature     = 0,
-                        maxOutputTokens = 8192,
+            providers = {
+                -- Used unless a machine-local module overrides `provider` above.
+                -- Requires GEMINI_API_KEY in the environment.
+                gemini = {
+                    -- @see https://ai.google.dev/gemini-api/docs/models/gemini
+                    model = "gemini-2.5-flash",
+                    -- Sent verbatim as the request body (avante
+                    -- providers/init.lua:269-280, providers/gemini.lua:184).
+                    -- Top-level temperature/max_tokens are not read by this
+                    -- provider.
+                    extra_request_body = {
+                        generationConfig = {
+                            temperature     = 0,
+                            maxOutputTokens = 8192,
+                        },
                     },
                 },
             },
-        },
 
-        behaviour = {
-            auto_suggestions                 = false,
-            auto_set_highlight_group         = true,
-            auto_set_keymaps                 = true,
-            auto_apply_diff_after_generation = false,
-            -- Has no effect: avante replaces it with "is img-clip installed"
-            -- (avante/config.lua:1216,1275) and wraps vim.paste, requiring
-            -- img-clip on the first paste in any buffer. The wrapper only acts in
-            -- AvanteInput; img-clip's own paste hook is off (img-clip.lua).
-            support_paste_from_clipboard     = false,
-            -- The default is true (avante/config.lua:683): in agentic mode every
-            -- tool, shell commands and file writes included, would run without
-            -- a confirmation prompt.
-            auto_approve_tool_permissions    = false,
-        },
-
-        -- UI windows
-        windows = {
-            position = "right",  -- sidebar on the right
-            wrap     = true,     -- wrap long lines
-            width    = 35,       -- % of total window width
-
-            sidebar_header = {
-                enabled = true,
-                align   = "center",
-                rounded = true,
+            behaviour = {
+                auto_suggestions                 = false,
+                auto_set_highlight_group         = true,
+                auto_set_keymaps                 = true,
+                auto_apply_diff_after_generation = false,
+                -- Has no effect: avante replaces it with "is img-clip installed"
+                -- (avante/config.lua:1216,1275) and wraps vim.paste, requiring
+                -- img-clip on the first paste in any buffer. The wrapper only acts in
+                -- AvanteInput; img-clip's own paste hook is off (img-clip.lua).
+                support_paste_from_clipboard     = false,
+                -- The default is true (avante/config.lua:683): in agentic mode every
+                -- tool, shell commands and file writes included, would run without
+                -- a confirmation prompt.
+                auto_approve_tool_permissions    = false,
             },
 
-            input = {
-                prefix = " ",   -- prompt prefix icon
-                height = 8,      -- input box height in lines
+            -- UI windows
+            windows = {
+                position = "right",  -- sidebar on the right
+                wrap     = true,     -- wrap long lines
+                width    = 35,       -- % of total window width
+
+                sidebar_header = {
+                    enabled = true,
+                    align   = "center",
+                    rounded = true,
+                },
+
+                input = {
+                    prefix = " ",   -- prompt prefix icon
+                    height = 8,      -- input box height in lines
+                },
+
+                edit = {
+                    border       = "rounded",
+                    start_insert = true,
+                },
+
+                ask = {
+                    floating       = false,
+                    start_insert   = true,
+                    border         = "rounded",
+                    focus_on_apply = "ours",
+                },
             },
 
-            edit = {
-                border       = "rounded",
-                start_insert = true,
+            selection = { hint_display = "none" },
+
+            -- Diff view
+            diff = {
+                autojump    = true,
             },
 
-            ask = {
-                floating       = false,
-                start_insert   = true,
-                border         = "rounded",
-                focus_on_apply = "ours",
-            },
-        },
-
-        selection = { hint_display = "none" },
-
-        -- Diff view
-        diff = {
-            autojump    = true,
-        },
-
-        -- Diff highlight colours are set in catpuccin.lua (custom_highlights):
-        -- avante skips highlights.diff when the groups already exist.
-    },
+            -- Diff highlight colours are set in catpuccin.lua (custom_highlights):
+            -- avante skips highlights.diff when the groups already exist.
+        }
+    end,
 }
