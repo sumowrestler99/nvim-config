@@ -107,7 +107,6 @@ return {
                 "--completion-style=bundled", -- group overloads → fewer items, faster
                 "--header-insertion=never",   -- skip auto-include analysis per completion
                 "--pch-storage=memory",       -- keep precompiled headers in RAM vs disk
-                "--j=" .. #vim.uv.cpu_info(), -- indexing threads (dynamic core count)
                 "--log=error",                -- suppress info/warning log noise
             },
             root_dir = function(bufnr, on_dir)
