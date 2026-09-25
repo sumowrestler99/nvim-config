@@ -16,6 +16,8 @@ return {
     -- The commands defined by nvim-dap (plugin/dap.lua), nvim-dap-virtual-text
     -- and mason-nvim-dap. With only `keys`, none of them existed until a
     -- debug key had been pressed once.
+    -- plugin/dap.lua pre-fills a new launch.json from this autocmd.
+    event = "BufNewFile */.vscode/launch.json",
     cmd = {
       "DapContinue", "DapToggleBreakpoint", "DapClearBreakpoints", "DapToggleRepl",
       "DapStepOver", "DapStepInto", "DapStepOut", "DapPause", "DapTerminate",
