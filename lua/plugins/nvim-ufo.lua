@@ -30,7 +30,16 @@ return {
     event        = { "BufReadPost", "BufNewFile" },
     dependencies = "kevinhwang91/promise-async",
     config = function()
-        local filetype_exclude = { 'help', 'alpha', 'dashboard', 'neo-tree', 'Trouble', 'lazy', 'mason' }
+        local filetype_exclude = {
+            'help', 'alpha', 'dashboard', 'neo-tree', 'Trouble', 'lazy', 'mason',
+            -- snacks bigfile: the indent fallback would re-read every line.
+            'bigfile',
+            -- Sidebars, pickers and git/quickfix buffers never need folds.
+            'Avante', 'AvanteInput', 'AvanteSelectedFiles',
+            'snacks_picker_list', 'snacks_picker_input',
+            'DiffviewFiles', 'DiffviewFileHistory',
+            'fugitive', 'fugitiveblame', 'git', 'gitcommit', 'qf',
+        }
 
         vim.api.nvim_create_autocmd('FileType', {
             group    = vim.api.nvim_create_augroup('local_detach_ufo', { clear = true }),
