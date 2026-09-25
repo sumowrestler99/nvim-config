@@ -116,13 +116,19 @@ return {
                 -- A machine-local module can claim paths that another server owns.
                 if extra.skip_clangd and extra.skip_clangd(filepath) then return end
 
-                -- nvim-lspconfig's own list (lsp/clangd.lua:68-76). A root_dir
-                -- function replaces root_markers entirely, so it is repeated here.
-                -- vim.fs.root() tries them in order across all ancestors, like
-                -- root_markers, so .git is only the last resort.
+                -- nvim-lspconfig's markers (lsp/clangd.lua:68-76). A root_dir
+                -- function replaces root_markers entirely, so they are repeated
+                -- here. vim.fs.root() tries each item in order across ALL
+                -- ancestors, so upstream's flat list lets any ancestor .clangd
+                -- (e.g. one in $HOME) beat a nearer compile_commands.json. The
+                -- nested list gives the project markers equal priority -- the
+                -- nearest wins -- and keeps .git as the last resort.
                 local markers = {
-                    '.clangd', '.clang-tidy', '.clang-format', 'compile_commands.json',
-                    'compile_flags.txt', 'configure.ac', '.git',
+                    {
+                        '.clangd', '.clang-tidy', '.clang-format', 'compile_commands.json',
+                        'compile_flags.txt', 'configure.ac',
+                    },
+                    '.git',
                 }
                 -- on_dir must be called even when nothing is found: vim.lsp only
                 -- starts the client from inside that callback (runtime
