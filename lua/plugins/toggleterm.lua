@@ -1,6 +1,8 @@
 return {
     "akinsho/toggleterm.nvim",
-    keys = { { [[<C-\>]], desc = "toggleterm" } },
+    -- Normal and Insert, as open_mapping covers outside terminals; a
+    -- Normal-only stub left Insert-mode <C-\> dead until the first load.
+    keys = { { [[<C-\>]], mode = { "n", "i" }, desc = "toggleterm" } },
     -- Created only by setup() (toggleterm.lua:434-492).
     cmd = {
         "ToggleTerm", "ToggleTermToggleAll", "TermExec", "TermSelect", "TermNew",
