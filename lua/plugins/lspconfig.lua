@@ -86,6 +86,26 @@ return {
                 vim.keymap.set('n', '<space>wl',  function()
                     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
                 end, bufopts)
+
+                -- Visual range format (linewise).
+                --
+                -- Do NOT build the range from nvim_buf_get_mark(0, "<"/">"):
+                -- those marks are only written when Visual mode is LEFT, so a
+                -- mapping invoked from Visual mode reads the *previous*
+                -- selection. line("v") and line(".") are the live selection.
+                -- The range is explicit because format() only infers one in
+                -- modes v/V (runtime/lua/vim/lsp/buf.lua:615-620); from
+                -- blockwise Visual it would format the whole file. Mode "x",
+                -- not "v", so the map stays out of Select mode (snippet
+                -- placeholders).
+                vim.keymap.set('x', '<leader>qf', function()
+                    local s, e = vim.fn.line("v"), vim.fn.line(".")
+                    if s > e then s, e = e, s end
+                    vim.lsp.buf.format({
+                        async = true,
+                        range = { start = { s, 0 }, ["end"] = { e, #vim.fn.getline(e) } },
+                    })
+                end, vim.tbl_extend('force', bufopts, { desc = "LSP range format" }))
             end,
         })
 
@@ -229,23 +249,5 @@ return {
         if extra.setup then
             extra.setup()
         end
-
-        -- Visual range format (linewise).
-        --
-        -- Do NOT build the range from nvim_buf_get_mark(0, "<"/">"): those marks
-        -- are only written when Visual mode is LEFT, so a mapping invoked from
-        -- Visual mode reads the *previous* selection. line("v") and line(".")
-        -- are the live selection. The range is explicit because format() only
-        -- infers one in modes v/V (runtime/lua/vim/lsp/buf.lua:615-620); from
-        -- blockwise Visual it would format the whole file. Mode "x", not "v",
-        -- so the map stays out of Select mode (snippet placeholders).
-        vim.keymap.set("x", "\\qf", function()
-            local s, e = vim.fn.line("v"), vim.fn.line(".")
-            if s > e then s, e = e, s end
-            vim.lsp.buf.format({
-                async = true,
-                range = { start = { s, 0 }, ["end"] = { e, #vim.fn.getline(e) } },
-            })
-        end, { desc = "LSP range format" })
     end,
 }
