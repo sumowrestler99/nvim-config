@@ -24,7 +24,7 @@ return {
       -- grn/grc/grm are set in visual mode only (nvim-treesitter.lua), and
       -- normal-mode grn is Neovim's built-in LSP rename. Without an explicit
       -- mode these entries registered in normal mode and mislabelled it.
-      { "gnn", desc = "TS Init selection" },
+      { "gs", desc = "TS Init selection" },
       { "grn", desc = "LSP Rename", icon = { icon = "󰑕", color = "blue" } },
       { "grn", mode = "x", desc = "TS Increment node" },
       { "grc", mode = "x", desc = "TS Increment scope" },

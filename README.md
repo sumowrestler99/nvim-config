@@ -292,9 +292,11 @@ In the 3-way merge view:
 
 ### Treesitter — Incremental Selection
 
+`gs` and the motions below exist only in buffers with a treesitter parser; elsewhere `]]`, `[[`, `]m` etc. are Vim's built-in section and method motions.
+
 | Key | Action |
 |-----|--------|
-| `gnn` | Start selection (Normal) |
+| `gs` | Start selection (Normal) |
 | `grn` | Expand to next node (Visual; Normal `grn` is LSP rename) |
 | `grc` | Expand to scope (Visual) |
 | `grm` | Shrink selection (Visual) |

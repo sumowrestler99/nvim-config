@@ -292,6 +292,35 @@ return {
             install(missing)
         end
 
+        -- Keys that need a parser, set per buffer once highlighting has
+        -- started. As global maps, gnn made the built-in `gn` wait out
+        -- 'timeoutlen', and ]] [[ ]m [m ]M [M took Vim's own section and
+        -- method motions from every buffer, parser or not. Incremental
+        -- selection now starts on `gs` (built-in: sleep) instead of `gnn`.
+        ---@param buf integer
+        local function set_buffer_keys(buf)
+            if vim.b[buf].user_ts_keys then return end
+            vim.b[buf].user_ts_keys = true
+            local function map(modes, lhs, rhs, desc)
+                vim.keymap.set(modes, lhs, rhs, { buf = buf, desc = desc })
+            end
+            ---@param fn string
+            ---@param query string
+            local function move(fn, query)
+                return function()
+                    require("nvim-treesitter-textobjects.move")[fn](query, "textobjects")
+                end
+            end
+            local nxo = { "n", "x", "o" }
+            map("n", "gs", incremental.init, "Init selection")
+            map(nxo, "]m", move("goto_next_start", "@function.outer"), "Next function start")
+            map(nxo, "]M", move("goto_next_end", "@function.outer"), "Next function end")
+            map(nxo, "[m", move("goto_previous_start", "@function.outer"), "Previous function start")
+            map(nxo, "[M", move("goto_previous_end", "@function.outer"), "Previous function end")
+            map(nxo, "]]", move("goto_next_start", "@class.outer"), "Next class start")
+            map(nxo, "[[", move("goto_previous_start", "@class.outer"), "Previous class start")
+        end
+
         ---@param buf integer
         local function start_highlighting(buf)
             if not vim.api.nvim_buf_is_valid(buf) then return end
@@ -303,7 +332,7 @@ return {
             if ok and stats and stats.size > 500 * 1024 then return end
 
             if installed[lang] then
-                pcall(vim.treesitter.start, buf, lang)
+                if pcall(vim.treesitter.start, buf, lang) then set_buffer_keys(buf) end
                 return
             end
             -- auto_install: fetch it, then highlight once it lands.
@@ -312,7 +341,7 @@ return {
             end
             if pending[lang] then
                 pending[lang]:await(vim.schedule_wrap(function()
-                    pcall(vim.treesitter.start, buf, lang)
+                    if pcall(vim.treesitter.start, buf, lang) then set_buffer_keys(buf) end
                 end))
             end
         end
@@ -330,8 +359,8 @@ return {
             end
         end
 
-        -- Incremental selection (see the implementation above).
-        vim.keymap.set('n', 'gnn', incremental.init,              { desc = 'Init selection' })
+        -- Incremental selection (see the implementation above). The Normal
+        -- mode entry key, gs, is buffer-local: see set_buffer_keys().
         vim.keymap.set('x', 'grn', incremental.node_incremental,  { desc = 'Increment node' })
         vim.keymap.set('x', 'grc', incremental.scope_incremental, { desc = 'Increment scope' })
         vim.keymap.set('x', 'grm', incremental.node_decremental,  { desc = 'Decrement node' })
@@ -350,14 +379,7 @@ return {
         vim.keymap.set({ "x", "o" }, "al", function() select.select_textobject("@loop.outer",        "textobjects") end)
         vim.keymap.set({ "x", "o" }, "il", function() select.select_textobject("@loop.inner",        "textobjects") end)
 
-        -- textobjects: move
-        local move = require("nvim-treesitter-textobjects.move")
-        vim.keymap.set({ "n", "x", "o" }, "]m", function() move.goto_next_start("@function.outer",     "textobjects") end)
-        vim.keymap.set({ "n", "x", "o" }, "]M", function() move.goto_next_end("@function.outer",       "textobjects") end)
-        vim.keymap.set({ "n", "x", "o" }, "[m", function() move.goto_previous_start("@function.outer", "textobjects") end)
-        vim.keymap.set({ "n", "x", "o" }, "[M", function() move.goto_previous_end("@function.outer",   "textobjects") end)
-        vim.keymap.set({ "n", "x", "o" }, "]]", function() move.goto_next_start("@class.outer",        "textobjects") end)
-        vim.keymap.set({ "n", "x", "o" }, "[[", function() move.goto_previous_start("@class.outer",    "textobjects") end)
+        -- textobjects: move -- buffer-local, see set_buffer_keys().
 
         -- textobjects: swap
         --
