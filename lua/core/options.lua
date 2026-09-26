@@ -62,6 +62,9 @@ vim.opt.pumheight = 10            -- Limit completion popup to 10 items
 vim.diagnostic.config({
     float        = { border = "rounded", source = "if_many" },
     virtual_text = true,
+    -- An error, not whichever diagnostic happened to be placed last, wins the
+    -- sign slot; floats and virtual text list the most severe first.
+    severity_sort = true,
     signs = {
         text = {
             [vim.diagnostic.severity.ERROR] = '',

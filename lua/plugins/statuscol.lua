@@ -20,7 +20,19 @@ return {
         -- number-less fold indicator, then signs, then line number & separator
         segments = {
           { text = { builtin.foldfunc }, click = 'v:lua.ScFa' },
-          { text = { '%s' }, click = 'v:lua.ScSa' },
+          -- Signs in two segments. One 2-cell slot for DAP, diagnostics and
+          -- TODO signs (highest priority wins), then a 1-cell column for
+          -- gitsigns alone, so the git bar no longer disappears on lines that
+          -- also carry a diagnostic or TODO. statuscol leaves namespaces that
+          -- another segment claims out of the '.*' one (statuscol.lua:456-479).
+          {
+            sign = { name = { '.*' }, namespace = { '.*' }, maxwidth = 1, colwidth = 2, auto = true },
+            click = 'v:lua.ScSa',
+          },
+          {
+            sign = { namespace = { 'gitsigns' }, maxwidth = 1, colwidth = 1, auto = true },
+            click = 'v:lua.ScSa',
+          },
           {
             text = { builtin.lnumfunc, ' ' },
             condition = { true, builtin.not_empty },

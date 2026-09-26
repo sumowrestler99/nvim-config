@@ -481,7 +481,7 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 | Plugin | Purpose |
 |--------|---------|
 | [nvim-ufo](https://github.com/kevinhwang91/nvim-ufo) | Enhanced folding with virtual text showing number of folded lines |
-| [statuscol.nvim](https://github.com/luukvbaal/statuscol.nvim) | Custom status column: fold indicator, signs, line numbers. Line-number clicks disabled; left-click on a git sign previews the hunk |
+| [statuscol.nvim](https://github.com/luukvbaal/statuscol.nvim) | Custom status column: fold indicator, one sign slot (DAP, diagnostics, TODO), a separate git-sign column, line numbers. Line-number clicks disabled; left-click on a git sign previews the hunk |
 
 ### Editing
 
