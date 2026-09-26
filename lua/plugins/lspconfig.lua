@@ -103,7 +103,12 @@ return {
                     if s > e then s, e = e, s end
                     vim.lsp.buf.format({
                         async = true,
-                        range = { start = { s, 0 }, ["end"] = { e, #vim.fn.getline(e) } },
+                        -- End column as the built-in sends it for V (buf.lua
+                        -- range_from_selection): the last byte, not one past.
+                        range = {
+                            start = { s, 0 },
+                            ["end"] = { e, math.max(#vim.fn.getline(e) - 1, 0) },
+                        },
                     })
                 end, vim.tbl_extend('force', bufopts, { desc = "LSP range format" }))
             end,
