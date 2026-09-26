@@ -87,14 +87,15 @@ return {
         -- documented replacement. Kept under <leader>hu for muscle memory.
         map('n', '<leader>hu', gs.stage_hunk,        'Toggle stage (alias of \\hs)')
         map('n', '<leader>hU', gs.reset_buffer_index,'Unstage buffer')
-        map('v', '<leader>hs', function()
+        -- x, not v: v also covers Select mode (snippet placeholders).
+        map('x', '<leader>hs', function()
           gs.stage_hunk { vim.fn.line('.'), vim.fn.line('v') }
         end, 'Stage selected lines')
 
         -- Reset (discard changes)
         map('n', '<leader>hr', gs.reset_hunk,   'Reset hunk')
         map('n', '<leader>hR', gs.reset_buffer, 'Reset buffer')
-        map('v', '<leader>hr', function()
+        map('x', '<leader>hr', function()
           gs.reset_hunk { vim.fn.line('.'), vim.fn.line('v') }
         end, 'Reset selected lines')
 
