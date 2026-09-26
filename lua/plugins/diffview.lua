@@ -1,3 +1,12 @@
+-- Custom 2-character shortcuts for 3-way merge resolution. A function so
+-- each layout gets its own tables.
+local function merge_keys()
+    return {
+        { { "n", "x" }, "g<", function() require("diffview.actions").diffget("ours")() end, { desc = "Obtain diff from Left (ours)" } },
+        { { "n", "x" }, "g>", function() require("diffview.actions").diffget("theirs")() end, { desc = "Obtain diff from Right (theirs)" } },
+    }
+end
+
 return {
     "sindrets/diffview.nvim",
     dependencies = "nvim-lua/plenary.nvim",
@@ -38,12 +47,11 @@ return {
             },
         },
         keymaps = {
-            -- 3-way layouts only: diffget has no target in 2-way diffs.
-            diff3 = {
-                -- Custom 2-character shortcuts for 3-way merge resolution
-                { { "n", "x" }, "g<", function() require("diffview.actions").diffget("ours")() end, { desc = "Obtain diff from Left (ours)" } },
-                { { "n", "x" }, "g>", function() require("diffview.actions").diffget("theirs")() end, { desc = "Obtain diff from Right (theirs)" } },
-            }
+            -- 3-way layouts only: diffget has no target in 2-way diffs. The
+            -- merge tool cycles (g<C-x>) from diff3 to diff4_mixed, where
+            -- ours/theirs still apply, so both get the maps.
+            diff3 = merge_keys(),
+            diff4 = merge_keys(),
         },
     },
 }
