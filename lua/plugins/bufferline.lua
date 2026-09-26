@@ -24,6 +24,10 @@ return {
           }
           return (icons[level] or "") .. count
         end,
+        -- Start the tabs after the neo-tree column instead of over it.
+        offsets = {
+          { filetype = "neo-tree", text = "Files", text_align = "left", separator = true },
+        },
         hover = {
           enabled = true,
           delay = 200,
