@@ -36,7 +36,7 @@ A full-featured, opinionated Neovim 0.12+ configuration built for C/C++, Swift, 
 - `GEMINI_API_KEY` is set in your shell environment for Avante AI features
 - Tab width is **4 spaces** by default; toggle to 2 with `<F4>`
 - The **leader key** is `\` (backslash)
-- Only catppuccin, snacks.nvim and barbecue.nvim (with its nvim-navic and nvim-web-devicons dependencies) load during startup. bufferline, lualine, noice, nvim-notify, smear-cursor and which-key load on `VeryLazy`, just after the first screen is drawn. Everything else loads on first use (command, key, filetype or buffer event)
+- Only catppuccin, snacks.nvim and barbecue.nvim (with its nvim-navic and nvim-web-devicons dependencies) load during startup. bufferline, lualine, noice (with nui.nvim), nvim-notify, smear-cursor and which-key load on `VeryLazy`, just after the first screen is drawn. Everything else loads on first use (command, key, filetype or buffer event)
 - Plugin versions are **pinned** via `lazy-lock.json` for reproducible installs
 
 ---
@@ -104,7 +104,7 @@ Optional:
 │   ├── core/
 │   │   ├── options.lua       # Editor options, diagnostic display config
 │   │   ├── keymaps.lua       # Global keymaps
-│   │   ├── autocmds.lua      # Autocommands (yank/OSC52, cursor restore, resize, no-undo for secrets, neo-tree on dir, diagnostic highlights)
+│   │   ├── autocmds.lua      # Autocommands (yank/OSC52, cursor restore, resize, no-undo for secrets, neo-tree on dir, diagnostic highlights, fugitiveblame winbar)
 │   │   ├── globals.lua       # Global variables
 │   │   └── local.lua         # Optional loader for gitignored machine-local overrides
 │   └── plugins/              # One file per plugin (or plugin group), loaded via lazy.nvim
@@ -167,7 +167,7 @@ Yanking (`y`) into the unnamed register automatically copies to the local clipbo
 |------|-----|--------|
 | Insert | `jk` | Exit insert mode |
 | Normal | `<leader>w` | Save file |
-| Normal | `<F4>` | Toggle tab width between 2 and 4 |
+| Normal | `<F4>` | Toggle tab width between 2 and 4 (current buffer and buffers opened after it) |
 | Normal | `<leader>pi` | Paste image from clipboard (img-clip) |
 | Normal | `<leader>ut` | Toggle undotree (opens on right) |
 | Normal | `<leader>ul` | Toggle all layout guides (clean mode) |
@@ -365,7 +365,7 @@ Function keys are active **only during an active debug session** and are unset a
 
 Adapters installed via Mason: **codelldb** (C/C++ via LLDB), **cpptools** (C/C++ gdbserver attach, GDB 7+), **debugpy** (Python), **bash-debug-adapter** (Bash, via the bashdb it bundles).
 
-Per-project launch configs are read automatically from `.vscode/launch.json` and take **priority over global configs**. `.vscode/*.json` files are treated as jsonc (JSON with Comments) so inline comments don't cause errors.
+Per-project launch configs are read automatically from `.vscode/launch.json` and take **priority over global configs**. The DAP stack, and the Mason adapter install, loads on the debug keys above or when a new `.vscode/launch.json` is created. `.vscode/*.json` files are treated as jsonc (JSON with Comments) so inline comments don't cause errors.
 
 ### Documentation (Neogen)
 
@@ -377,7 +377,7 @@ Per-project launch configs are read automatically from `.vscode/launch.json` and
 
 | Key | Action |
 |-----|--------|
-| `<C-\>` | Toggle floating terminal (Normal, Insert and inside the terminal) |
+| `<C-\>` | Toggle floating terminal (Normal, Insert and inside the terminal). In Insert mode it waits `timeoutlen`, so `<C-\><C-o>` and `<C-\><C-n>` still work |
 | `<C-\><C-n>` | Inside the terminal: Terminal-Normal mode (scroll back, yank). `<C-\>` alone toggles after `timeoutlen` |
 
 ### Avante (AI Assistant)
