@@ -30,6 +30,10 @@ vim.opt.backup = false            -- Do not create backup files
 -- writebackup stays on (default): with no swap file either, a failed write
 -- would otherwise lose both the file and the edits (:h 'writebackup').
 vim.opt.swapfile = false          -- Do not create swap files
+-- oldfiles (\fr) and marks skip temporary locations, e.g. sudoedit copies:
+-- 'r' entries are path prefixes that ShaDa does not record. The default
+-- already has r/tmp/ and r/private/ (macOS /private/tmp); these add the rest.
+vim.opt.shada:append({ "r/var/tmp/", "r/dev/shm/", "r/var/folders/" })
 
 -- UI enhancements
 vim.opt.cmdheight = 1             -- Command-line height
