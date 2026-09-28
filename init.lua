@@ -22,7 +22,7 @@ vim.filetype.add({
   },
 })
 
--- This file can be loaded by calling `lua require('plugins')` from your init.vim
+-- Bootstrap lazy.nvim: clone it on first start, then put it on 'runtimepath'.
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
   local out = vim.fn.system({
@@ -68,7 +68,9 @@ vim.list_extend(spec, require("core.local").plugin_specs())
 require('lazy').setup({
     spec = spec,
     ui = { border = "rounded" },
-    checker = { enabled = false, concurrency = 1, frequency = 86400 }, --automatically check for plugin updates
+    -- No background update checks; run :Lazy check by hand. The other fields
+    -- only matter if this is turned back on.
+    checker = { enabled = false, concurrency = 1, frequency = 86400 },
     performance = {
         rtp = {
             -- Bundled plugins this config never reaches for. Deliberately kept:

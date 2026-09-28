@@ -206,7 +206,8 @@ return {
         })
 
         -- SchemaStore's catalog costs ~6 ms to parse, and this spec loads for
-        -- any of 32 filetypes -- so opening a .lua file was paying for it.
+        -- any of 28 filetypes (plus machine-local ones) -- so opening a .lua
+        -- file was paying for it.
         -- Build it in before_init, i.e. only once the server actually starts.
         --
         -- The empty `settings = {}` and the in-place mutation are both
