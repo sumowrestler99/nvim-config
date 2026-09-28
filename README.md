@@ -32,7 +32,7 @@ A full-featured, opinionated Neovim 0.12+ configuration built for C/C++, Swift, 
 - Primarily designed for **macOS** but also works on **Linux** (used over SSH); Homebrew paths are macOS-specific, Mason binaries install platform-correctly on both
 - Your terminal uses a **Nerd Font** — all icons (gitsigns, lualine, cmp, noice, neo-tree) depend on it ([Iosevka Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Iosevka) recommended)
 - **Swift/Objective-C** LSP (`sourcekit`) is macOS-only and is skipped automatically on Linux
-- `bashdb` must be installed separately for Bash debugging (`brew install bashdb` on macOS, `apt/dnf/pacman install bashdb` on Linux)
+- Bash debugging uses the `bashdb` bundled with Mason's bash-debug-adapter; a system `bashdb` is only a fallback
 - `GEMINI_API_KEY` is set in your shell environment for Avante AI features
 - Tab width is **4 spaces** by default; toggle to 2 with `<F4>`
 - The **leader key** is `\` (backslash)
@@ -88,7 +88,7 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com).
 
 Optional:
 - `gdb` — cpptools debugging (`miDebuggerPath = "gdb"`)
-- `bashdb` — Bash debugging
+- `bashdb` — Bash debugging, only if Mason's bundled copy is missing
 - `glow` — `:Glow` markdown preview. Without it `:Glow` is not defined (glow.nvim would otherwise download an unverified release binary)
 - `claude` CLI — claude-code.nvim
 - `cargo` — only if avante's prebuilt native libraries have to be rebuilt
@@ -363,7 +363,7 @@ Function keys are active **only during an active debug session** and are unset a
 | `F11` | Step into |
 | `F12` | Step out |
 
-Adapters installed via Mason: **codelldb** (C/C++ via LLDB), **cpptools** (C/C++ gdbserver attach, GDB 7+), **debugpy** (Python), **bash-debug-adapter** (Bash via bashdb; requires `brew install bashdb` on macOS or `apt/dnf/pacman install bashdb` on Linux).
+Adapters installed via Mason: **codelldb** (C/C++ via LLDB), **cpptools** (C/C++ gdbserver attach, GDB 7+), **debugpy** (Python), **bash-debug-adapter** (Bash, via the bashdb it bundles).
 
 Per-project launch configs are read automatically from `.vscode/launch.json` and take **priority over global configs**. `.vscode/*.json` files are treated as jsonc (JSON with Comments) so inline comments don't cause errors.
 

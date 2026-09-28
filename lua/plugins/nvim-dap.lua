@@ -187,6 +187,15 @@ return {
       }
 
       local is_mac = vim.fn.has("mac") == 1
+      -- bashdb: the copy bundled with Mason's bash-debug-adapter, else a
+      -- system install (Homebrew on macOS, the distro package on Linux).
+      local bundled_bashdb = vim.fn.stdpath("data")
+        .. "/mason/packages/bash-debug-adapter/extension/bashdb_dir"
+      local sys_prefix = is_mac and "/opt/homebrew" or "/usr"
+      local bashdb, bashdb_lib = sys_prefix .. "/bin/bashdb", sys_prefix .. "/share/bashdb"
+      if vim.uv.fs_stat(bundled_bashdb .. "/bashdb") then
+        bashdb, bashdb_lib = bundled_bashdb .. "/bashdb", bundled_bashdb
+      end
       dap.configurations.sh = {
         {
           name        = "Launch Bash script",
@@ -201,8 +210,8 @@ return {
           end,
           cwd         = "${workspaceFolder}",
           pathBash      = is_mac and "/opt/homebrew/bin/bash" or "/bin/bash",
-          pathBashdb    = is_mac and "/opt/homebrew/bin/bashdb"    or "/usr/bin/bashdb",
-          pathBashdbLib = is_mac and "/opt/homebrew/share/bashdb"  or "/usr/share/bashdb",
+          pathBashdb    = bashdb,
+          pathBashdbLib = bashdb_lib,
           pathCat       = "/bin/cat",
           pathMkfifo    = "/usr/bin/mkfifo",
           pathPkill     = "/usr/bin/pkill",
