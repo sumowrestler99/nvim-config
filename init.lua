@@ -75,11 +75,12 @@ require('lazy').setup({
         rtp = {
             -- Bundled plugins this config never reaches for. Deliberately kept:
             -- matchit/matchparen (bracket matching), man (:Man and K on sh),
-            -- editorconfig, osc52, shada, rplugin, spellfile.
+            -- editorconfig, osc52, shada, rplugin, spellfile -- and gzip,
+            -- tarPlugin and zipPlugin. Without those, `nvim foo.gz` shows the
+            -- compressed bytes, and .tar/.tgz/.zip/.jar open as binary rather
+            -- than as a file listing. They only define autocmds (the work is
+            -- in autoload/), so disabling them saved next to nothing.
             disabled_plugins = {
-                "gzip",          -- browsing .gz archives in a buffer
-                "tarPlugin",     -- browsing .tar archives in a buffer
-                "zipPlugin",     -- browsing .zip archives in a buffer
                 "tutor",         -- :Tutor
                 -- netrwPlugin is deliberately NOT here. It provides scp://,
                 -- sftp:// and http:// editing (README: "Remote file editing"),
